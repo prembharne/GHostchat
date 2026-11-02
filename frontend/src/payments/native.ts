@@ -1,5 +1,6 @@
 import { createPublicClient, createWalletClient, custom, getAddress, http, type Address, type EIP1193Provider, type Hex } from 'viem';
-import { chainFor, nativeAbi, nativeReference, requireTestnet, type NativeReference } from '../../../shared/nativeProtocol';
+import { transferNetwork, transferChain } from '../../../shared/paymentNetwork';
+import { nativeAbi, nativeReference, requireTestnet, type NativeReference } from '../../../shared/nativeProtocol';
 export interface NativeArtifact { version: number; bytecode: Hex; deployedBytecode: Hex; abi: unknown[]; evmVersion: string; testnetOnly: boolean }
 let artifactPromise: Promise<NativeArtifact> | undefined;
 export function nativeArtifact() {
@@ -10,10 +11,10 @@ export function nativeArtifact() {
     return artifact;
   }).catch(error => { artifactPromise = undefined; throw error; });
 }
-const makeClient = (id: number) => { const network = requireTestnet(id); return createPublicClient({ chain: chainFor(network), transport: http(network.rpc, { timeout: 18000, retryCount: 1 }) }); };
+const makeClient = (id: number) => { const network = transferNetwork(id); return createPublicClient({ chain: transferChain(id), transport: http(network.rpc, { timeout: 18000, retryCount: 1 }) }); };
 const clients = new Map<number, ReturnType<typeof makeClient>>();
 export function nativeClient(id: number) {
-  const network = requireTestnet(id);
+  transferNetwork(id);
   if (!clients.has(id)) clients.set(id, makeClient(id));
   return clients.get(id)!;
 }
@@ -39,8 +40,8 @@ export async function verifyCreation(id: number, address: Address, hash: string,
 }
 export function rememberedCreation(id: number, address: string): string { try { return JSON.parse(localStorage.getItem('ghostpay.native.creation.v1') || '{}')[`${id}:${address.toLowerCase()}`] || ''; } catch { return ''; } }
 function saveCreation(id: number, address: string, hash: string) { let previous = {}; try { previous = JSON.parse(localStorage.getItem('ghostpay.native.creation.v1') || '{}'); } catch {} localStorage.setItem('ghostpay.native.creation.v1', JSON.stringify({ ...previous, [`${id}:${address.toLowerCase()}`]: hash })); }
-export async function testnetWallet(id: number, provider: EIP1193Provider, expectedAccount: Address) {
-  const network = requireTestnet(id); await checkRpc(id); const hex = `0x${id.toString(16)}`;
+export async function paymentWallet(id: number, provider: EIP1193Provider, expectedAccount: Address) {
+  const network = transferNetwork(id); await checkRpc(id); const hex = `0x${id.toString(16)}`;
   if (Number(await provider.request({ method: 'eth_chainId' })) !== id) {
     try { await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] }); }
     catch (error) {
@@ -49,10 +50,14 @@ export async function testnetWallet(id: number, provider: EIP1193Provider, expec
       await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
     }
   }
-  if (Number(await provider.request({ method: 'eth_chainId' })) !== id) throw new Error('Switch your wallet to the selected testnet.');
+  if (Number(await provider.request({ method: 'eth_chainId' })) !== id) throw new Error('Switch your wallet to the selected network.');
   const accounts = await provider.request({ method: 'eth_accounts' });
   if (!accounts.some(account => account.toLowerCase() === expectedAccount.toLowerCase())) throw new Error('The connected wallet changed. Reconnect before signing.');
-  return createWalletClient({ account: expectedAccount, chain: chainFor(network), transport: custom(provider) });
+  return createWalletClient({ account: expectedAccount, chain: transferChain(id), transport: custom(provider) });
+}
+// Legacy contract consumers retain their testnet-only boundary.
+export async function testnetWallet(id: number, provider: EIP1193Provider, expectedAccount: Address) {
+  requireTestnet(id); return paymentWallet(id, provider, expectedAccount);
 }
 const deploymentsKey = 'ghostpay.native.escrows.v2';
 export function rememberedEscrow(id: number): string { try { const value = JSON.parse(localStorage.getItem(deploymentsKey) || '{}'); return typeof value[id] === 'string' ? value[id] : ''; } catch { return ''; } }

@@ -21,10 +21,10 @@ interface MessageItem {
 
 const MESSAGES: MessageItem[] = [
   { id: 'm1', sender: 'Community chat', role: 'dispatcher', avatar: 'GC', content: 'A conversation, a contribution, a payment. All in the same workspace.', meta: 'Illustrative conversation', side: 'left', baseY: 0.8, depth: 1.0 },
-  { id: 'm2', sender: 'BridgeKey wallet', role: 'ai', avatar: 'BK', content: 'Connect your wallet. Review the login message. Keep your keys with you.', meta: 'Wallet ownership signature', side: 'right', baseY: 1.3, depth: 1.15 },
+  { id: 'm2', sender: 'Your EVM wallet', role: 'ai', avatar: 'BK', content: 'Connect your wallet. Review the login message. Keep your keys with you.', meta: 'Wallet ownership signature', side: 'right', baseY: 1.3, depth: 1.15 },
   { id: 'm3', sender: 'Matrix messaging', role: 'pilot', avatar: 'M', content: 'Your wallet-linked account connects to your own messaging homeserver.', meta: 'Server setup required', side: 'left', baseY: 2.1, depth: 0.95 },
-  { id: 'm4', sender: 'Pay by username', role: 'system', avatar: '@', content: 'Find a registered @username, check the linked wallet and approve the transfer in BridgeKey.', meta: 'MST Testnet · tMSTC', side: 'right', baseY: 2.9, depth: 1.05 },
-  { id: 'm5', sender: 'P2P test trade', role: 'system', avatar: 'P2P', content: 'The seller locks faucet tMSTC for the agreed buyer before the mock INR payment.', meta: 'Escrow demo · test assets only', side: 'left', baseY: 3.7, depth: 1.0 },
+  { id: 'm4', sender: 'Pay by username', role: 'system', avatar: '@', content: 'Find a registered @username, check the linked wallet and approve the transfer in your wallet.', meta: 'Choose the payment network', side: 'right', baseY: 2.9, depth: 1.05 },
+  { id: 'm5', sender: 'P2P test trade', role: 'system', avatar: 'P2P', content: 'The seller locks faucet tMSTC for the agreed buyer before the buyer pays through UPI.', meta: 'Escrow demo · test assets only', side: 'left', baseY: 3.7, depth: 1.0 },
   { id: 'm6', sender: 'Payment verification', role: 'ai', avatar: 'INR', content: 'Razorpay Test Mode simulates the payment. The buyer approves release after server verification.', meta: 'Trusted attestation · no real INR', side: 'right', baseY: 4.5, depth: 1.1 },
   { id: 'm7', sender: 'Trading roadmap', role: 'system', avatar: 'P2P', content: 'A seller-confirmed UPI trading flow is planned. The current demo uses a server-signed test payment attestation.', meta: 'Planned · not implemented', side: 'left', baseY: 5.3, depth: 0.9 },
 ];

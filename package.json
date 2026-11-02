@@ -18,6 +18,7 @@
     "build": "npm run compile && npm run build:services && npm run build -w server && npm run build -w frontend",
     "start": "node scripts/start.mjs",
     "check:mst": "node scripts/check-mst.mjs",
+    "check:networks": "node --import tsx scripts/check-phase-one.ts",
     "check:pwa": "node scripts/check-pwa.mjs",
     "build:services": "node scripts/build-prices.mjs && node scripts/build-native-artifact.mjs && node scripts/build-p2p.mjs",
     "test:matrix": "node --test infra/matrix/test.mjs infra/matrix/wallet-config.test.mjs",

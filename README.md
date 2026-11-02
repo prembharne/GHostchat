@@ -1,28 +1,28 @@
 # GhostChat
 
-Encrypted Matrix conversations with BridgeKey identity, MST payments, community funding and peer-to-peer UPI trades in one workspace.
+Encrypted Matrix conversations with EVM wallet identity, native-coin payments, community funding and peer-to-peer UPI trades in one workspace.
 
 **Web app:** [ghostchat-rho.vercel.app](https://ghostchat-rho.vercel.app)
 **Matrix homeserver:** [ghostchat-matrix-pune.duckdns.org](https://ghostchat-matrix-pune.duckdns.org)
 
-GhostChat helps communities discuss work, pay contributors and share funded allocations without coordinating separate chat identities and manually copied wallet addresses. A registered username resolves to a wallet-linked account. Payment tools open inside the messenger; BridgeKey signs transactions.
+GhostChat helps communities discuss work, pay contributors and share funded allocations without coordinating separate chat identities and manually copied wallet addresses. A registered username resolves to a wallet-linked account. Payment tools open inside the messenger; your selected browser wallet signs transactions.
 
 ## Current implementation
 
 | Area | Implemented behavior |
 | --- | --- |
-| Identity | BridgeKey discovery, signed wallet ownership challenge, unique username and profile |
+| Identity | EIP-6963 browser wallet discovery (BridgeKey, MetaMask, Rabby), signed wallet ownership challenge, unique username and profile |
 | Messaging | Matrix encrypted direct and group conversations; community spaces with General and Announcements |
 | Chat tools | Attachments, voice notes, typing, read receipts, message status, search, profile photos, pin/mute/archive preferences and resizable conversation list |
 | Recovery | Persisted sessions and device crypto storage, encrypted room-key export/import and device recovery controls |
 | Payments | Direct native-coin transfers, recipient-authorized payment links and community allocations |
 | P2P | Buyer-posted requests, seller-funded escrow, saved private UPI ID/QR and matching participant confirmations |
 
-The integrated payment and P2P workflow currently uses **MST Testnet tMSTC**. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
+The local phase-one implementation prepares **direct native-coin transfers on MST, Ethereum, Polygon and Optimism**, with both Mainnet and Testnet choices. Contract payments and P2P currently use the existing **MST Testnet tMSTC** flow; new-network contract funding remains gated. These source changes have not been deployed to the public website. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
 
 ## Account and messaging workflow
 
-1. Open the app, choose Continue and connect the official [BridgeKey](https://bridgekey.io/) extension.
+1. Open the app, choose Continue and select an installed EVM wallet such as [BridgeKey](https://bridgekey.io/), MetaMask or Rabby. With multiple extensions installed, select the intended provider.
 2. Sign the single-use wallet ownership challenge. This signs you in; it does not authorize a payment.
 3. Complete your name, unique username and private mobile field. Collecting the number does not verify it.
 4. Open chat. The account relay issues a short-lived Matrix ticket; Synapse provisions or restores the wallet-linked account.
@@ -34,7 +34,7 @@ Community creation coalesces repeated clicks and recovers interrupted setup thro
 
 ### Direct transfer
 
-Resolve a username or use a complete wallet address, enter the native-coin amount, review the recipient and approve in BridgeKey. The sender pays network gas. The recipient receives funds without executing a claim.
+Resolve a username or use a complete wallet address, enter the native-coin amount, review the recipient and approve in the selected wallet. Verify the network: Mainnet spends real coins, and the sender pays network gas. The recipient receives funds without executing a claim.
 
 ### Payment link
 
@@ -68,7 +68,7 @@ Contract bounds: greater than zero and at most **10 native coins**, INR total **
 | Component | Technology and responsibility |
 | --- | --- |
 | Browser | React 19, TypeScript, Vite 7, React Router, TanStack Query, Tailwind/CSS, Three.js backgrounds |
-| Wallet | BridgeKey EIP-6963 discovery, wagmi 2, viem 2; ethers 6 in the deployment tool |
+| Wallet | EIP-6963 injected wallet discovery, wagmi 2, viem 2; ethers 6 in the MST deployment tool |
 | Messaging | matrix-js-sdk 44, encrypted attachments and Synapse |
 | Application API | Node.js 24, Express 5, origin checks, rate limits, wallet challenges and hashed bearer sessions |
 | Application data | SQLite and persistent server volumes; encrypted private profile and UPI records |
@@ -83,7 +83,12 @@ The API issues login tickets and reference attestations; it is not a gas-sponsor
 | Network | Chain ID | Coin | Status |
 | --- | --- | --- | --- |
 | MST Testnet | 91562037 | tMSTC | Integrated application payment and P2P flow |
-| MST Mainnet | 4646 | MSTC | All three payment modules deployed and verified; application activation is separate |
+| MST Mainnet | 4646 | MSTC | Direct transfers prepared; deployed contracts await app activation |
+| Ethereum / Sepolia | 1 / 11155111 | ETH | Direct transfers prepared; contract funding gated |
+| Polygon / Amoy | 137 / 80002 | POL | Direct transfers prepared; contract funding gated |
+| Optimism / OP Sepolia | 10 / 11155420 | ETH | Direct transfers prepared; contract funding gated |
+
+Network configuration and a responding RPC do not constitute a verified contract deployment. The new-network funding gates are deliberate. Existing supported testnet links remain compatible with their proof checks. No bridge, ERC-20 or stablecoin integration is added. See [phase-one rollout and activation checks](docs/PHASE-ONE-MULTICHAIN.md).
 
 ### Mainnet addresses
 
@@ -98,7 +103,7 @@ Verified MST Mainnet deployment (chain 4646):
 | Community funds | [0xf94C7F000f6e39eB5fcF4079660D9cebdE298C00](https://mstscan.com/address/0xf94C7F000f6e39eB5fcF4079660D9cebdE298C00) |
 | P2P escrow | [0x652bfc4fAE71303951B5f9D562B229b58233aB66](https://mstscan.com/address/0x652bfc4fAE71303951B5f9D562B229b58233aB66) |
 
-[Deployment transaction](https://mstscan.com/tx/0xc53450bd1f98aa6ab29e4d78e5b27aab696205f8c1569fd9f5c1a2c113eadaa8). These contracts are deployed; the hosted application's Mainnet payment integration remains disabled until separately configured and validated.
+[Deployment transaction](https://mstscan.com/tx/0xc53450bd1f98aa6ab29e4d78e5b27aab696205f8c1569fd9f5c1a2c113eadaa8). These contracts are deployed; the hosted application's Mainnet escrow integration remains disabled until separately configured and validated.
 
 <!-- MAINNET_DEPLOYMENT_END -->
 
@@ -119,7 +124,7 @@ Before Mainnet application activation, configure chain-aware frontend discovery,
 
 ## Local installation
 
-Use Node.js 24, npm, BridgeKey, a reachable Matrix homeserver and Testnet coins for transaction testing.
+Use Node.js 24, npm, an EIP-6963 EVM browser wallet, a reachable Matrix homeserver and Testnet coins for transaction testing.
 
 ```sh
 npm install
@@ -154,7 +159,7 @@ Frontend: http://localhost:5173. API: http://127.0.0.1:3001. `/` is the landing 
 | Path | Responsibility |
 | --- | --- |
 | `frontend/src/messenger` | Matrix client, sessions, rooms and chat controls |
-| `frontend/src/wallet` | BridgeKey login, profiles and session restoration |
+| `frontend/src/wallet` | EVM wallet selection, login, profiles and session restoration |
 | `frontend/src/payments` | Transfers, links, allocations, claims and activity |
 | `frontend/src/p2p` | Offer board, private UPI details and confirmations |
 | `server/src` | Account API, private storage and chain validation |
@@ -183,6 +188,7 @@ Back up PostgreSQL, Synapse data, relay databases, profile/UPI keys and JWT sett
 npm run test -w contracts
 npm run test -w server
 npm run test:messenger
+npm run check:networks
 npm run test:matrix
 npm run build -w frontend
 ```
@@ -202,6 +208,7 @@ Mainnet suite tests use a local EVM with chain ID 4646 to check atomic deploymen
 
 - [Current implementation documentation](docs/GhostChat-Current-Implementation.docx)
 - [Current implementation presentation](docs/GhostChat-Current-Implementation.pptx)
+- [Phase-one multichain rollout](docs/PHASE-ONE-MULTICHAIN.md)
 - [Mainnet batch deployment instructions](docs/MAINNET-BATCH-DEPLOYMENT.md)
 
 Maintainer: **Prem Bharne**, Pune, India. Public contact: **prembhrane455@gmail.com**.

@@ -15,7 +15,8 @@ import { InboxResize } from './InboxResize';
 import { ProfileImage } from './ProfilePhoto';
 import { CheckCheck } from 'lucide-react';
 import './messenger.css';
-import { nativePath, requireTestnet } from '../../../shared/nativeProtocol';
+import { transferNetwork } from '../../../shared/paymentNetwork';
+import { nativePath } from '../../../shared/nativeProtocol';
 import { campaignPath } from '../../../shared/community';
 import type { PaymentReference } from './model';
 import { Communities, ManageGroup } from './Communities';
@@ -29,7 +30,7 @@ import './workspace.css';
 import './chat-surfaces.css';
 import './chat-theme.css';
 
-function paymentUrl(ref: PaymentReference) { return ref.version === 1 ? `/pay/${ref.paymentId}` : ref.version === 2 ? nativePath(ref) : ref.version === 4 ? campaignPath(ref) : `${requireTestnet(ref.chainId).explorer}/tx/${ref.hash}`; }
+function paymentUrl(ref: PaymentReference) { return ref.version === 1 ? `/pay/${ref.paymentId}` : ref.version === 2 ? nativePath(ref) : ref.version === 4 ? campaignPath(ref) : `${transferNetwork(ref.chainId).explorer}/tx/${ref.hash}`; }
 type View = 'communities' | 'chats' | 'settings';
 export default function Messenger() { return <MessengerProvider><Workspace/></MessengerProvider>; }
 function Avatar({ room, small = false }: { room?: Pick<ChatRoom, 'initials' | 'kind' | 'avatar'>; small?: boolean }) { return <span className={`ms-avatar${room?.kind !== 'direct' && !!room ? ' ms-avatar-group' : ''}${small ? ' ms-avatar-small' : ''}`}>{room?.kind !== 'direct' && !!room ? <Users size={small ? 17 : 21}/> : room?.initials || <Ghost size={22}/>}<ProfileImage source={room?.avatar}/></span>; }

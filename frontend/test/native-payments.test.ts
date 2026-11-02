@@ -54,7 +54,7 @@ test('native approval signatures bind the exact chain, contract, payment and rec
   assert.equal(await recoverTypedDataAddress({ ...params, signature }), account.address);
   for (const patch of [{ domain: { ...domain, chainId: 91562037 } }, { message: { ...params.message, paymentId: 2n } }]) assert.notEqual(await recoverTypedDataAddress({ ...params, ...patch, signature }), account.address);
 });
-test('wallet preparation never touches a provider for mainnet and rejects wrong chains/accounts before signing', async () => {
+test('legacy contract wallet preparation never touches a provider for mainnet and rejects wrong chains/accounts', async () => {
   const realFetch = globalThis.fetch; let rpcCalls = 0; let providerCalls = 0;
   globalThis.fetch = (async (_url: unknown, init?: RequestInit) => { rpcCalls++; const body = JSON.parse(String(init?.body)); return Response.json({ jsonrpc: '2.0', id: body.id, result: '0x61' }); }) as typeof fetch;
   try {

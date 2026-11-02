@@ -34,7 +34,7 @@ export function WorkspaceTools({ onClose, onLock, locked }: { onClose(): void; o
     <nav className="ms-tools-tabs" aria-label="Payment tools">
       {([{ to:'/create', panel:'create', label:'Send', Icon:Plus }, { to:'/payments', panel:'history', label:'Activity', Icon:History }, { to:'/trade', panel:'trade', label:'P2P', Icon:ArrowDownUp }] as const).map(item => <Link key={item.to} to={item.to} aria-current={panel === item.panel ? 'page' : undefined} aria-disabled={locked && panel !== item.panel} onClick={event => { if (locked && panel !== item.panel) event.preventDefault(); }}><item.Icon size={15}/>{item.label}</Link>)}
     </nav>
-    <p className="ms-tools-network"><ShieldCheck size={12}/>{panel === 'setup' ? 'MST Testnet & Mainnet · contract deployment' : 'MST Testnet · test assets only'}</p>
+    <p className="ms-tools-network"><ShieldCheck size={12}/>{panel === 'setup' ? 'MST contract deployment' : panel === 'trade' ? 'MST Testnet escrow · UPI transfers use real INR' : 'Check the selected network · Mainnet uses real coins and gas'}</p>
     {locked && <p className="ms-tools-pending" role="status">Keep this payment open until its submitted transaction and sharing steps are resolved.</p>}
     <div className="ms-tools-body workspace"><Suspense fallback={<p className="ms-fine" role="status">Opening your payment tools…</p>}><Routes>
       <Route path="/create" element={<PaymentComposer embedded onClose={onClose} onLockChange={onLock}/>}/>

@@ -16,7 +16,7 @@ export function HeroSection({ paused }: { paused: boolean }) {
   }, [paused]);
   return <section className="hero" id="gc-hero" aria-label="Introduction">
     <h1 id="h1" aria-label="Meet GhostChat. Your people. Your payments."><span aria-hidden="true"><LetterRevealText tokens={tokens} progress={progress} spread={0.35} ghostRgb={[80, 110, 100]} accentRgb={[0, 229, 192]} finalRgb={[255, 255, 255]}/></span></h1>
-    <p className="trust fade-up" style={{ '--d': '1.15s' } as React.CSSProperties}>Built with Matrix. Connected through BridgeKey.<small>Encrypted conversations, community groups and wallet-approved MST payments. Start with a username. Keep it all in one messenger.</small><span className="gc-hero-note">P2P demo: faucet tMSTC + mock INR · no real INR</span></p>
+    <p className="trust fade-up" style={{ '--d': '1.15s' } as React.CSSProperties}>Built with Matrix. Connected through your wallet.<small>Encrypted conversations, community groups and wallet-approved EVM payments. Start with a username. Keep it all in one messenger.</small><span className="gc-hero-note">MST, Ethereum, Polygon & Optimism native transfers · P2P escrow stays on MST Testnet</span></p>
     <div className="hero-cta fade-up" style={{ '--d': '1.3s' } as React.CSSProperties}><Button label="Get started" isLarge/></div>
   </section>;
 }
