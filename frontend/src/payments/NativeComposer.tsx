@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 import { decodeEventLog, formatUnits, getAddress, isAddress, type Hex } from 'viem';
 import { Check, Copy, ExternalLink, LoaderCircle, Rocket, Send, ShieldCheck, Wallet as WalletIcon } from 'lucide-react';
-import { networkById } from '../../../shared/evm-networks';
+import { transferNetwork as networkById } from '../../../shared/paymentNetwork';
 import { amountInNative } from '../../../shared/amounts';
 import type { MarketQuote } from '../../../shared/market';
 import { nativeAbi, nativePath, type NativeReference } from '../../../shared/nativeProtocol';
@@ -94,9 +94,9 @@ export function NativeComposer({ onClose, onShare, recipient, standalone = false
   const contents = <>
     <p className="ms-modal-copy">{recipient ? `Create a link for ${recipient}. ` : 'Fund a payment and share its link. '}Your recipient chooses a wallet. You approve the exact address.</p>
     <form className="ms-form gp-native-form" onSubmit={submit}>
-      <NetworkPicker network={network} disabled={locked} onChange={next => { setNetwork(next); setConfigured(rememberedEscrow(next.id)); setAmount(''); setSnapshot(undefined); setMode(marketSymbolSupported(next.symbol) ? 'usd' : 'native'); setImportAddress(''); }}/>
+      <NetworkPicker network={network} disabled={locked} onChange={next => { setNetwork(networkById(next.id)); setConfigured(rememberedEscrow(next.id)); setAmount(''); setSnapshot(undefined); setMode(marketSymbolSupported(next.symbol) ? 'usd' : 'native'); setImportAddress(''); }}/>
       <div className="gp-network-context"><ShieldCheck size={13}/><span>Testnet only · no bridging · native {network.symbol}</span></div>
-      {legacy ? <div className="ms-wallet-connect workspace"><Wallet/></div> : <div className="gp-network-wallet"><button type="button" className="ms-button ms-secondary ms-full" onClick={connect} disabled={action.busy || external.connecting}><WalletIcon size={16}/>{external.external ? external.chainId === network.id ? `${account.address!.slice(0, 6)}…${account.address!.slice(-4)} · ${network.symbol}` : `Switch wallet to ${network.name}` : 'Continue with Google or wallet'}<Check size={14}/></button><p className="ms-fine">Use your connected BridgeKey wallet to fund this MST Testnet link.</p></div>}
+      {legacy ? <div className="ms-wallet-connect workspace"><Wallet/></div> : <div className="gp-network-wallet"><button type="button" className="ms-button ms-secondary ms-full" onClick={connect} disabled={action.busy || external.connecting}><WalletIcon size={16}/>{external.external ? external.chainId === network.id ? `${account.address!.slice(0, 6)}…${account.address!.slice(-4)} · ${network.symbol}` : `Switch wallet to ${network.name}` : 'Connect wallet'}<Check size={14}/></button><p className="ms-fine">Use your selected EVM wallet on this testnet. Deployment verification is required before funding.</p></div>}
       {!ready && <p className="ms-fine" role="status">Payment links are awaiting the shared escrow configuration. Please contact the organizer.</p>}
       <AmountField id="chat-amount" label="Total funds allocated to this link" symbol={network.symbol} decimals={network.decimals} value={amount} onChange={setAmount} mode={mode} setMode={setMode} disabled={locked} fixedQuote={snapshot?.quote}/>
         <label htmlFor="chat-expiry">Link expires in</label><select id="chat-expiry" value={expiry} onChange={e => setExpiry(e.target.value)} disabled={locked}><option value="3600">1 hour</option><option value="86400">24 hours</option><option value="604800">7 days</option><option value="300">5 minutes · quick test</option></select>

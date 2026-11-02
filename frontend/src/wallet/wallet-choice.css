@@ -1,0 +1,11 @@
+.gc-wallet-choice.ms-modal{max-width:490px;background:#f8fffd;color:#123d35;border:1px solid #c9eee4;border-radius:28px;color-scheme:light}
+.gc-wallet-choice .ms-modal-body{padding:32px}.gc-wallet-choice h2{color:#123d35}.gc-wallet-choice .ms-modal-close{color:#357b6a}
+.gc-wallet-choice::backdrop{background:#062f2980;backdrop-filter:blur(8px)}
+.gc-wallet-search{display:flex;align-items:center;gap:10px;border:1px solid #c9e9e0;border-radius:15px;padding:0 14px;background:white;color:#568c7e;margin:20px 0 14px}
+.gc-wallet-search input{min-width:0;width:100%;padding:14px 0;border:0!important;outline:none;background:transparent!important;color:#123d35;box-shadow:none!important;font-size:14px}
+.gc-wallet-options{display:grid;gap:10px;max-height:320px;overflow-y:auto;padding:2px}
+.gc-wallet-options>button{display:flex;align-items:center;gap:13px;width:100%;padding:14px;text-align:left;border:1px solid #c9e9e0;border-radius:17px;background:white;color:#123d35;cursor:pointer}
+.gc-wallet-options>button:hover{border-color:#00cbb1;background:#effff7}.gc-wallet-options>button:focus-visible{outline:3px solid #007d6d;outline-offset:2px}.gc-wallet-options>button:disabled{opacity:.65;cursor:wait}
+.gc-wallet-options strong{display:block;font-size:15px}.gc-wallet-options small{display:block;font-size:11px;color:#5b8479;margin-top:3px}.gc-wallet-options>button>svg{margin-left:auto;flex-shrink:0}
+.gc-wallet-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#d0fcf5,#eaff9f);color:#007362;font-weight:700;font-size:20px;flex-shrink:0}
+@media(max-width:520px){.gc-wallet-choice .ms-modal-body{padding:25px 20px}}

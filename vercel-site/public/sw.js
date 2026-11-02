@@ -1,8 +1,8 @@
 /* GhostPay caches public application code only. No API, wallet, bank or RPC data. */
-const BUILD = 'fb73499988bda810';
+const BUILD = '39e22c575b2b53bb';
 const SHELL = `ghostpay-shell-${BUILD}`;
 const ASSETS = `ghostpay-assets-${BUILD}`;
-const PRECACHE = ["/assets/Messenger-5WMZBLct.css","/assets/Messenger-EL1ak9Jt.js","/assets/WalletDialog-DlrJcTNl.js","/assets/index-BVvITneV.css","/assets/index-DG_xLBC_.js","/assets/secp256k1-DVEg6cLn.js","/icons/ghostpay-180.png","/icons/ghostpay-192.png","/icons/ghostpay-512.png","/index.html","/instrument-serif-italic.woff2","/inter.woff2","/manifest.webmanifest","/offline-retry.js","/offline.html"];
+const PRECACHE = ["/assets/Messenger-5WMZBLct.css","/assets/Messenger-7gKY5z3L.js","/assets/WalletDialog-C0EPoeRE.js","/assets/index-CVzUanO9.css","/assets/index-u3E-X_7w.js","/assets/secp256k1-IZ7vEGEX.js","/icons/ghostpay-180.png","/icons/ghostpay-192.png","/icons/ghostpay-512.png","/index.html","/instrument-serif-italic.woff2","/inter.woff2","/manifest.webmanifest","/offline-retry.js","/offline.html"];
 const ownCache = name => /^ghostpay-(shell|assets)-/.test(name);
 const publicAsset = path => /^\/assets\/[\w.-]+\.(js|css|wasm)$/.test(path) || /^\/icons\/ghostpay-(180|192|512)\.png$/.test(path) || ['/inter.woff2', '/instrument-serif-italic.woff2', '/offline-retry.js', '/manifest.webmanifest'].includes(path);
 

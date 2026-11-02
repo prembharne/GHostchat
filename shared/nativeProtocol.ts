@@ -1,5 +1,6 @@
 import { defineChain, getAddress, isAddress, parseAbi, zeroAddress, type Address } from 'viem';
-import { networkById, type NativeNetwork } from './evm-networks.js';
+import type { NativeNetwork } from './evm-networks.js';
+import { transferNetwork } from './paymentNetwork.js';
 export const nativeAbi = parseAbi([
   'function createNativePayment(uint256 expiry) payable returns (uint256 paymentId)',
   'function getPayment(uint256 paymentId) view returns ((address sender,uint256 amount,uint256 expiry,uint8 status))',
@@ -15,7 +16,7 @@ export interface NativeReference { version: 2; chainId: number; contract: string
 export const nativeClaimTypes = { ClaimAuthorization: [{ name: 'paymentId', type: 'uint256' }, { name: 'recipient', type: 'address' }, { name: 'deadline', type: 'uint256' }] } as const;
 export const nativeRequestTypes = { ClaimRequest: [{ name: 'paymentId', type: 'uint256' }, { name: 'recipient', type: 'address' }, { name: 'requestedAt', type: 'uint256' }] } as const;
 export const nativeDomain = (reference: NativeReference) => ({ name: 'GhostPay', version: '2', chainId: reference.chainId, verifyingContract: getAddress(reference.contract) } as const);
-export function requireTestnet(id: number): NativeNetwork { const network = networkById(id); if (!network) throw new Error('Only supported EVM testnets are enabled. Mainnet payments are disabled.'); return network; }
+export function requireTestnet(id: number): NativeNetwork { let network; try { network = transferNetwork(id); } catch {} if (!network?.testnet) throw new Error('Only supported EVM testnets are enabled. Mainnet payments are disabled.'); return network; }
 export function chainFor(network: NativeNetwork) {
   requireTestnet(network.id);
   return defineChain({ id: network.id, name: network.name, nativeCurrency: { name: network.symbol, symbol: network.symbol, decimals: network.decimals }, rpcUrls: { default: { http: [network.rpc] } }, ...(network.explorer ? { blockExplorers: { default: { name: 'Explorer', url: network.explorer } } } : {}), testnet: true });
@@ -24,7 +25,8 @@ export function validId(value: unknown): value is string { return typeof value =
 export function nativeReference(value: unknown): NativeReference | undefined {
   if (!value || typeof value !== 'object') return;
   const input = value as Record<string, unknown>;
-  if (input.version !== 2 || !Number.isSafeInteger(input.chainId) || !networkById(Number(input.chainId)) || typeof input.contract !== 'string' || !isAddress(input.contract) || input.contract.toLowerCase() === zeroAddress || !validId(input.paymentId)) return;
+  if (input.version !== 2 || !Number.isSafeInteger(input.chainId)  || typeof input.contract !== 'string' || !isAddress(input.contract) || input.contract.toLowerCase() === zeroAddress || !validId(input.paymentId)) return;
+  try { requireTestnet(Number(input.chainId)); } catch { return; }
   if (input.deploymentHash !== undefined && (typeof input.deploymentHash !== 'string' || !/^0x[\da-fA-F]{64}$/.test(input.deploymentHash))) return;
   return { ...(input.deploymentHash ? { deploymentHash: input.deploymentHash as string } : {}), version: 2, chainId: Number(input.chainId), contract: getAddress(input.contract), paymentId: input.paymentId };
 }

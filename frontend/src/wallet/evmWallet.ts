@@ -14,7 +14,7 @@ export function selectedWallet<T extends BrowserWallet>(wallets: readonly T[], i
   throw new Error('Choose your wallet on the sign-in screen. No wallet was selected automatically.');
 }
 
-// Restore only the last selected provider. Existing BridgeKey sessions predate the selector.
+// Restore only an explicitly selected provider. A missing choice requires the chooser.
 export async function waitForSelectedWallet<T extends BrowserWallet>(options: {
   connectors(): readonly T[]; connected(): boolean; previous(): string;
   restore(wallet: T): Promise<unknown>; pause?(): Promise<void>; attempts?: number;
@@ -22,8 +22,8 @@ export async function waitForSelectedWallet<T extends BrowserWallet>(options: {
   for (let attempt = 0; attempt < (options.attempts ?? 25); attempt++) {
     if (options.connected()) return;
     const previous = options.previous();
-    const candidates = options.connectors().filter(wallet => isEvmWallet(wallet) &&
-      (previous ? wallet.id === previous : /^bridgekey(?:wallet)?$/i.test(wallet.name.replace(/[\s_-]/g, ''))));
+    if (!previous) return; // A fresh visit must show the wallet chooser, never open BridgeKey automatically.
+    const candidates = options.connectors().filter(wallet => isEvmWallet(wallet) && wallet.id === previous);
     if (candidates.length === 1) await options.restore(candidates[0]).catch(() => {});
     if (options.connected()) return;
     await (options.pause?.() ?? new Promise(resolve => setTimeout(resolve, 200)));

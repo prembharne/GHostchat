@@ -12,7 +12,7 @@ const results = await Promise.all(phaseOneNetworks.map(async network => {
     const result = await response.json() as { result?: string; error?: { message: string } };
     if (Number(result.result) !== network.id) throw new Error(result.error?.message || 'RPC chain ID mismatch');
     return { network: network.name, chainId: network.id, rpc: 'OK',
-      direct: 'Ready for wallet testing', contracts: networkAvailability(network.id, 'link').enabled ? 'Existing MST verification flow' : 'Gated' };
+      direct: 'Ready for wallet testing', contracts: networkAvailability(network.id, 'link').enabled ? 'Verify testnet deployment before funding' : 'Gated' };
   } catch (error) {
     process.exitCode = 1;
     return { network: network.name, chainId: network.id, rpc: (error as Error).message, direct: 'Unavailable', contracts: 'Do not activate' };

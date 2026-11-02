@@ -13,7 +13,7 @@ const details = [
   { label: '02 / YOUR IDENTITY', text: 'Sign a wallet-ownership message in your wallet. Choose a public username; your mobile number stays private and is not verified.' },
   { label: '03 / CONVERSATIONS & CONTROL', text: 'Create encrypted direct chats and groups. Find registered people by username and review the recipient and amount before sending.' },
   { label: '04 / TEST THE COMPLETE FLOW', text: 'The P2P escrow holds testnet tMSTC; UPI transfers use real INR. Matching references show agreement, not independent bank verification.' },
-  { label: '05 / WHAT COMES NEXT', text: 'Native transfers support MST, Ethereum, Polygon and Optimism. Contract features on new networks await verified deployments; P2P stays on MST Testnet.' },
+  { label: '05 / WHAT COMES NEXT', text: 'Native transfers support supported EVM networks. Testnet payment contracts require verified deployments. Mainnet deployment is disabled; P2P stays on MST Testnet.' },
 ];
 function tokenize(text: string): TextToken[] { return text.split(/(\n| )/).filter(Boolean).map(word => word === '\n' ? { type: 'br' } : word === ' ' ? { type: 'space' } : { type: 'word', text: word }); }
 const tokens = statements.map(tokenize);

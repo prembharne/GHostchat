@@ -1,79 +1,71 @@
-# Phase-one EVM rollout
+# EVM wallets and testnet contract setup
 
-Status: source implementation prepared on 2 November 2026. Publishing this source to GitHub does not deploy the multichain frontend to Vercel or activate a new-chain API on EC2.
+## Current scope
 
-## What is available
+The app discovers installed EIP-6963 Ethereum providers and presents a searchable wallet dialog. Users choose MetaMask, BridgeKey, Phantom's Ethereum provider, Rabby or another announced EVM wallet. A fresh visit with no saved wallet choice does not automatically open BridgeKey. A previously selected provider can reconnect on reload; choose **Choose another wallet** to switch.
 
-| Network | Chain ID | Native coin | Direct transfers | New contract funding |
-| --- | --- | --- | --- | --- |
-| MST Testnet | 91562037 | tMSTC | Prepared | Existing verified funding flow |
-| MST Mainnet | 4646 | MSTC | Prepared | Gated; deployed suite is not app activation |
-| Ethereum | 1 | ETH | Prepared | Gated |
-| Sepolia | 11155111 | ETH, test coin | Prepared | Gated |
-| Polygon | 137 | POL | Prepared | Gated |
-| Polygon Amoy | 80002 | POL, test coin | Prepared | Gated |
-| OP Mainnet | 10 | ETH | Prepared | Gated |
-| OP Sepolia | 11155420 | ETH, test coin | Prepared | Gated |
+An extension's advertised name is not an authenticity guarantee. Only the selected provider receives the connect request. Wallet support for a chain is separate from the app's chain configuration: Phantom, for example, cannot be assumed to support every custom EVM network. Solana accounts are not connected by this flow. Mobile WalletConnect is not included.
 
-“Prepared” means configured in this source tree, with RPC-chain checks and automated tests. It does not claim a successful user-signed transfer on each network. Direct transfers do not need a GhostChat contract. Each network has separate balances, transactions and gas. No bridging, ERC-20 or stablecoin support is added by this change.
+The registry includes 23 networks across 12 ecosystems:
 
-The network selector disables new payment-link and community funding on the new networks. Existing supported testnet references retain their proof-checked read/claim paths for compatibility. Contract runtime and creation-transaction verification remain required by the existing funding flows; selecting a chain is not proof of a deployment.
+| Ecosystem | Mainnet ID | Testnet ID |
+| --- | ---: | ---: |
+| MST | 4646 | 91562037 |
+| Ethereum | 1 | 11155111 (Sepolia) |
+| Polygon | 137 | 80002 (Amoy) |
+| Optimism | 10 | 11155420 (OP Sepolia) |
+| Arbitrum | 42161 | 421614 (Arbitrum Sepolia) |
+| Base | 8453 | 84532 (Base Sepolia) |
+| BNB Smart Chain | 56 | 97 |
+| Avalanche | 43114 | 43113 (Fuji) |
+| Celo | 42220 | 11142220 (Celo Sepolia) |
+| Gnosis | 100 | 10200 (Chiado) |
+| Linea | 59144 | 59141 (Linea Sepolia) |
+| Scroll | 534352 | Retired; excluded |
 
-## Wallet and identity behavior
+Scroll Sepolia (534351) is rejected even by the legacy lookup. [Official retirement notice](https://docs.scroll.io/tr/developers/faucet/).
 
-- Sign-in discovers EIP-6963 injected browser wallets, including BridgeKey, MetaMask and Rabby. No WalletConnect account or project ID is required for this extension-based flow. Mobile wallet connections through WalletConnect are a separate integration.
-- With multiple installed wallets, the user chooses a provider. Display names are supplied by extensions and are not an authenticity guarantee.
-- Reload restores the selected provider only. An existing BridgeKey session can restore using the compatibility path; another installed wallet is never silently substituted.
-- The API still verifies a single-use signed wallet challenge and binds the session to the wallet address. No Google authentication, private-key upload or new server wallet is introduced.
-- The same address retains its username and wallet-linked Matrix identity when switching networks. Network changes do not clear Matrix device storage or room keys. Changing the address is a different identity; private UPI records are not migrated between addresses.
-- Before transferring, the app checks the public RPC's chain ID, requests a wallet chain switch when needed and checks the wallet's actual chain and authorized account. Mainnet review explicitly identifies real coins and additional gas.
+Direct native-coin transfers and balances are configured for these networks. Funds stay on the selected network. This does not add bridging, ERC-20 tokens, stablecoins, or arbitrary custom-chain support.
 
-## Run the local checks
+## Testnet deployment
 
-```powershell
+1. Connect the desired wallet and complete wallet sign-in/profile setup.
+2. Open `/setup` and choose an active testnet. Mainnet options are disabled.
+3. Fund the selected wallet with that testnet's gas coin.
+4. Choose **Deploy or resume testnet setup**. Approve the payment-link and community contract deployments in your wallet. There are two transactions, with zero payment deposit.
+5. The app waits for two confirmations and checks exact creation input, runtime bytecode, chain ID, signing domain and canonical receipt before remembering the addresses.
+6. Open Send, select the same testnet, then create a payment link or community fund. Share the resulting funded link/card; the recipient can verify the deployment proof in the link.
+
+Saved pending transaction hashes prevent blindly deploying again after a timeout or refresh. A retry first checks the saved transaction. Verified addresses are saved by network in the browser; sharing a funded payment carries the contract address and creation proof. Merely adding an RPC or address does not bypass verification.
+
+Mainnet deployment is also blocked by `requireTestnet` inside the setup transaction handler, independently of disabled UI options. Mainnet contract funding remains gated. The separate, existing MST Mainnet suite/deployment records do not activate Mainnet escrow in this UI.
+
+## Identity and data
+
+The API validates a single-use signed wallet challenge. Sessions remain bound to the wallet address. The same address retains its username and Matrix identity across chains; changing network does not clear device keys. Switching to a different address does not transfer that identity or its private UPI data.
+
+Before sending, the client checks the public RPC chain ID, the wallet's actual selected chain and authorized account. Mainnet direct payments explicitly identify real coins and gas.
+
+## P2P is still MST Testnet only
+
+Payment-link/community portability does not port the P2P module. Existing P2P constructors, deployment validation, offer records, private UPI snapshots and reference attestations are MST-bound. Porting P2P needs reviewed contracts and chain + contract + trade namespaces across the backend, plus replay tests.
+
+The buyer pays the seller externally through UPI. Matching submitted bank references establish participant agreement, not proof of bank settlement. No ZK proof, payment gateway, arbitrator or automatic bank-credit verification is added.
+
+## Validation and rollout
+
+- Frontend and server builds passed; the full frontend/server suites passed (94 and 48 tests respectively), with focused network/reference tests repeated after the registry update.
+- Read-only checks returned the correct chain IDs for active registry endpoints across runs. Public RPCs can fail intermittently; a chain-ID response does not establish wallet support, CORS behavior, contract deployment or end-to-end settlement.
+- A visual browser check was blocked by saved browser permissions; the user chose to handle that check.
+- Hosted assets must be rebuilt and synced before Vercel deployment. Preserve `vercel-site/public/ops` during the sync. Publishing source to GitHub alone does not update the compiled asset snapshot.
+- Testnet contract deployment still requires the user's wallet approvals. No Mainnet transaction is part of this update.
+
+Useful commands:
+
+```sh
 npm run check:networks
 npm run test:messenger
 npm run build -w frontend
+npm run build -w server
+npm run test -w server
 ```
-
-`check:networks` is read-only and sends no transaction. Public RPC availability can change. A successful chain-ID response does not verify a contract, finality behavior or browser CORS access.
-
-## Validation of this local change
-
-- Frontend suite: 94 tests passed, including wallet choice/restoration, chain/account checks and contract activation gates.
-- Server suite: 48 tests passed. Frontend and server production builds passed.
-- All eight RPCs returned the expected chain ID during read-only checks. MST Testnet also returned HTTP 500 and a connection failure on later requests; its endpoint is intermittent and should be monitored before a demo or rollout.
-- No user-signed transfer on the newly configured networks, live deployment or EC2 update was performed during this validation. Source publication and production rollout are separate steps.
-
-## Before publishing this frontend
-
-1. Keep the existing production build available for rollback. Back up Matrix data and keys; no data reset is needed for this change.
-2. Test login and refresh with BridgeKey, MetaMask and Rabby. With two extensions installed, check that the chosen wallet remains selected after reload. Check existing users' messages remain readable.
-3. Test small native transfers between two controlled wallets on Sepolia, Amoy and OP Sepolia. Test rejected approvals, wrong-network switching, account changes and receipt sharing in Activity and chat. The receiving wallet must view the same network.
-4. Review and deliberately approve any small Mainnet smoke test with funded wallets; automated tests do not spend real coins. Check explorer amounts and gas separately.
-5. Build the frontend, then use the existing Vercel asset preparation and deployment procedure. `scripts/sync-vercel.mjs` replaces the hosted public directory; preserve any required operations assets first. The local build alone does not update the public site.
-6. Verify the deployed `/start`, `/chat` and `/create` routes. The existing account API accepts wallet ownership signatures independently of extension brand. No new-chain P2P backend has been activated on EC2.
-
-## Activating payment links and community funds on another chain
-
-For each chain separately:
-
-1. Review and deploy the native-coin escrow and community contracts compiled with the intended compiler/settings. The current batch deployment tool is **MST Mainnet specific**; do not use it as a generic Ethereum/Polygon/Optimism deployer.
-2. Record chain ID, contract address, creation transaction, deployment block, ABI and compiled bytecode. Verify exact creation input, runtime, initialized signing domain and canonical confirmed receipt. A pasted address or explorer “Success” label is insufficient.
-3. Extend the contract-reference validation, deployment registry and frontend/backend verification for that chain. The legacy `requireTestnet` path intentionally still rejects Mainnet contract references. `networkAvailability` is an additional UI gate, not an activation system or substitute for those checks.
-4. Test sender approval, recipient claims, expiry/refund behavior and community allocations on the corresponding testnet. Repeat controlled Mainnet validation only after those checks.
-5. Enable that feature for the verified chain and deploy the matching app/API configuration. Leave unrelated chains disabled.
-
-## P2P remains a separate rollout
-
-The active P2P escrow, private payment records and reference attestations remain bound to MST Testnet. The Testnet contract constructor rejects other public chains; its Mainnet counterpart is MST Mainnet specific. Neither can be deployed unchanged to Ethereum, Polygon or Optimism.
-
-Before porting P2P, review a contract variant with explicit supported-chain rules; make deployment validation, offer records, private UPI snapshots, reference commitments and attestation signing chain-aware. Namespace by chain ID + contract + trade ID and test replay rejection between chains. Do not merely replace the RPC or contract address.
-
-The buyer pays INR to the seller through an external UPI app. Matching independently submitted bank references prove agreement between participants, not bank settlement. This rollout adds no ZK proof, automatic bank verification, arbitrator or bank-freeze prediction. The existing real-INR/test-coin experiment is not a production trading launch.
-
-## Phase-one product focus
-
-Start with a small group of community organizers paying known contributors. Measure repeated use, successful payments, time to first payment and support requests. Use the networks those customers already hold assets on rather than requiring everyone to fund every chain.
-
-For fundraising, describe enabled features separately from configured networks and deployed-but-inactive contracts. YC's published standard investment is $500,000 for accepted companies: $125,000 for 7%, plus $375,000 on an uncapped MFN SAFE that can add equity. Acceptance and investment are not guaranteed. Source: https://www.ycombinator.com/deal .

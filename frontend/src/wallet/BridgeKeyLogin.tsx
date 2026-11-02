@@ -23,5 +23,5 @@ export function BridgeKeyLogin({ onBusyChange }: { onBusyChange?(busy: boolean):
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); onBusyChange?.(false); }
   }
-  return <>{!account.connector || !isEvmWallet(account.connector) ? <BridgeKeyConnect disabled={busy}/> : <><p className="ms-fine">Wallet connected. Sign a login message to verify wallet ownership. This does not spend tokens.</p><button className="ms-button ms-primary ms-full" disabled={busy} onClick={() => { void login(); }}>{busy ? 'Waiting for wallet…' : 'Sign in with wallet'}</button></>}{error && <p className="ms-alert" role="alert">{error}</p>}</>;
+  return <>{!account.connector || !isEvmWallet(account.connector) ? <BridgeKeyConnect disabled={busy}/> : <><p className="ms-fine">Wallet connected. Sign a login message to verify wallet ownership. This does not spend tokens.</p><button className="ms-button ms-primary ms-full" disabled={busy} onClick={() => { void login(); }}>{busy ? 'Waiting for wallet…' : 'Sign in with wallet'}</button><BridgeKeyConnect compact disabled={busy}/></>}{error && <p className="ms-alert" role="alert">{error}</p>}</>;
 }

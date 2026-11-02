@@ -4,7 +4,7 @@
     "src": "../node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm"
   },
   "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js": {
-    "file": "assets/index-CDtLShtJ.js",
+    "file": "assets/index-CsiAT9hp.js",
     "name": "index",
     "src": "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js",
     "isDynamicEntry": true,
@@ -16,17 +16,17 @@
     ]
   },
   "../node_modules/viem/_esm/utils/ccip.js": {
-    "file": "assets/ccip-BpD7km3r.js",
+    "file": "assets/ccip-8D1Ov1GF.js",
     "name": "ccip",
     "src": "../node_modules/viem/_esm/utils/ccip.js",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_WalletDialog-DlrJcTNl.js"
+      "_WalletDialog-C0EPoeRE.js"
     ]
   },
   "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js": {
-    "file": "assets/secp256k1-DVEg6cLn.js",
+    "file": "assets/secp256k1-IZ7vEGEX.js",
     "name": "secp256k1",
     "src": "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js",
     "isDynamicEntry": true,
@@ -38,17 +38,17 @@
     "file": "assets/Messenger-5WMZBLct.css",
     "src": "_Messenger-5WMZBLct.css"
   },
-  "_Messenger-EL1ak9Jt.js": {
-    "file": "assets/Messenger-EL1ak9Jt.js",
+  "_Messenger-7gKY5z3L.js": {
+    "file": "assets/Messenger-7gKY5z3L.js",
     "name": "Messenger",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_WalletDialog-DlrJcTNl.js",
+      "_WalletDialog-C0EPoeRE.js",
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
     ],
     "dynamicImports": [
-      "_WalletDialog-DlrJcTNl.js",
+      "_WalletDialog-C0EPoeRE.js",
       "src/p2p/TradePage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/Setup.tsx",
@@ -58,32 +58,24 @@
       "assets/Messenger-5WMZBLct.css"
     ]
   },
-  "_UI-DOiLHN7-.js": {
-    "file": "assets/UI-DOiLHN7-.js",
+  "_UI-dBi5fHFI.js": {
+    "file": "assets/UI-dBi5fHFI.js",
     "name": "UI",
     "imports": [
       "index.html",
-      "_Messenger-EL1ak9Jt.js"
+      "_Messenger-7gKY5z3L.js"
     ]
   },
-  "_WalletDialog-DlrJcTNl.js": {
-    "file": "assets/WalletDialog-DlrJcTNl.js",
+  "_WalletDialog-C0EPoeRE.js": {
+    "file": "assets/WalletDialog-C0EPoeRE.js",
     "name": "WalletDialog",
     "isDynamicEntry": true,
     "imports": [
       "index.html"
     ]
   },
-  "_clock-3-CIxHi25F.js": {
-    "file": "assets/clock-3-CIxHi25F.js",
-    "name": "clock-3",
-    "imports": [
-      "index.html",
-      "_Messenger-EL1ak9Jt.js"
-    ]
-  },
   "index.html": {
-    "file": "assets/index-DG_xLBC_.js",
+    "file": "assets/index-u3E-X_7w.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -92,15 +84,15 @@
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js",
       "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js",
       "src/company/PublicPages.tsx",
-      "_Messenger-EL1ak9Jt.js",
+      "_Messenger-7gKY5z3L.js",
       "src/pages/Landing.tsx"
     ],
     "css": [
-      "assets/index-BVvITneV.css"
+      "assets/index-CVzUanO9.css"
     ]
   },
   "src/company/PublicPages.tsx": {
-    "file": "assets/PublicPages-FaSRw784.js",
+    "file": "assets/PublicPages-Bo7SiibS.js",
     "name": "PublicPages",
     "src": "src/company/PublicPages.tsx",
     "isDynamicEntry": true,
@@ -112,14 +104,14 @@
     ]
   },
   "src/p2p/TradePage.tsx": {
-    "file": "assets/TradePage-sP6EvkpQ.js",
+    "file": "assets/TradePage-B3Wq3OSo.js",
     "name": "TradePage",
     "src": "src/p2p/TradePage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-EL1ak9Jt.js",
-      "_WalletDialog-DlrJcTNl.js",
+      "_Messenger-7gKY5z3L.js",
+      "_WalletDialog-C0EPoeRE.js",
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
     ],
     "css": [
@@ -127,21 +119,20 @@
     ]
   },
   "src/pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-PRNRRKfU.js",
+    "file": "assets/Dashboard-T4rTs8KZ.js",
     "name": "Dashboard",
     "src": "src/pages/Dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-EL1ak9Jt.js",
-      "_UI-DOiLHN7-.js",
-      "_clock-3-CIxHi25F.js",
-      "_WalletDialog-DlrJcTNl.js",
+      "_Messenger-7gKY5z3L.js",
+      "_UI-dBi5fHFI.js",
+      "_WalletDialog-C0EPoeRE.js",
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
     ]
   },
   "src/pages/Landing.tsx": {
-    "file": "assets/Landing-BBG19ZaE.js",
+    "file": "assets/Landing-VwkSdQMp.js",
     "name": "Landing",
     "src": "src/pages/Landing.tsx",
     "isDynamicEntry": true,
@@ -153,29 +144,27 @@
     ]
   },
   "src/pages/PaymentPage.tsx": {
-    "file": "assets/PaymentPage-CnXj7UTB.js",
+    "file": "assets/PaymentPage-DFWOCYV_.js",
     "name": "PaymentPage",
     "src": "src/pages/PaymentPage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-EL1ak9Jt.js",
-      "_UI-DOiLHN7-.js",
-      "_clock-3-CIxHi25F.js",
-      "_WalletDialog-DlrJcTNl.js",
+      "_Messenger-7gKY5z3L.js",
+      "_UI-dBi5fHFI.js",
+      "_WalletDialog-C0EPoeRE.js",
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
     ]
   },
   "src/pages/Setup.tsx": {
-    "file": "assets/Setup-Bc-S3xNj.js",
+    "file": "assets/Setup-Cob5wrhF.js",
     "name": "Setup",
     "src": "src/pages/Setup.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_UI-DOiLHN7-.js",
-      "_Messenger-EL1ak9Jt.js",
-      "_WalletDialog-DlrJcTNl.js",
+      "_Messenger-7gKY5z3L.js",
+      "_WalletDialog-C0EPoeRE.js",
       "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
     ]
   }

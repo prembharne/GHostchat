@@ -28,18 +28,18 @@ GhostChat combines encrypted conversations, wallet-linked usernames and explicit
 
 | Area | Implemented behavior |
 | --- | --- |
-| Identity | EIP-6963 browser wallet discovery (BridgeKey, MetaMask, Rabby), signed wallet ownership challenge, unique username and profile |
+| Identity | EIP-6963 wallet chooser (BridgeKey, MetaMask, Phantom Ethereum, Rabby and other installed EVM wallets), signed wallet ownership challenge, unique username and profile |
 | Messaging | Matrix encrypted direct and group conversations; community spaces with General and Announcements |
 | Chat tools | Attachments, voice notes, typing, read receipts, message status, search, profile photos, pin/mute/archive preferences and resizable conversation list |
 | Recovery | Persisted sessions and device crypto storage, encrypted room-key export/import and device recovery controls |
 | Payments | Direct native-coin transfers, recipient-authorized payment links and community allocations |
 | P2P | Buyer-posted requests, seller-funded escrow, saved private UPI ID/QR and matching participant confirmations |
 
-The phase-one source implementation prepares **direct native-coin transfers on MST, Ethereum, Polygon and Optimism**, with both Mainnet and Testnet choices. Contract payments and P2P currently use the existing **MST Testnet tMSTC** flow; new-network contract funding remains gated. The hosted app and the source release have separate rollout states: the new multichain wallet/transfer implementation has been locally validated but has not been deployed to Vercel in this update. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
+The phase-one source implementation prepares **direct native-coin transfers across 23 configured Mainnet/Testnet networks in 12 EVM ecosystems**. Payment links and community funds support active configured testnets after exact deployment verification; Mainnet contract funding/deployment remains disabled. P2P uses **MST Testnet tMSTC**. `/setup` prepares payment-link and community contracts through the selected wallet, with recoverable pending transactions. A source commit alone does not publish the frontend; Vercel rollout is separate. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
 
 ## Account and messaging workflow
 
-1. Open the app, choose Continue and select an installed EVM wallet such as [BridgeKey](https://bridgekey.io/), MetaMask or Rabby. With multiple extensions installed, select the intended provider.
+1. Open the app, choose Continue and select an installed EVM wallet such as [BridgeKey](https://bridgekey.io/), MetaMask, Phantom (Ethereum) or Rabby. With multiple extensions installed, select the intended provider.
 2. Sign the single-use wallet ownership challenge. This signs you in; it does not authorize a payment.
 3. Complete your name, unique username and private mobile field. Collecting the number does not verify it.
 4. Open chat. The account relay issues a short-lived Matrix ticket; Synapse provisions or restores the wallet-linked account.
@@ -126,17 +126,23 @@ The API issues login tickets and reference attestations; it is not a gas-sponsor
 
 Payment-link EIP-712 signatures bind chain, contract, payment, recipient and deadline. P2P attestations bind chain, contract, trade, actor and reference commitment. The contracts enforce their own state and transfer rules; they cannot inspect a bank account or infer that a UPI transfer settled.
 
+## Wallet and testnet setup
+
+Select **Connect wallet** to open the EVM wallet dialog. Choose the installed provider you want; use **Choose another wallet** if a different extension is already connected. A fresh visit does not automatically choose BridgeKey.
+
+Open `/setup` after sign-in to deploy the payment-link and community contracts on an active testnet. The wallet asks for two deployment approvals. Pending hashes are preserved for recovery and contracts must pass exact bytecode/creation/chain checks before funding. Mainnet deployment is blocked both in the UI and transaction handler. P2P remains MST Testnet only.
+
 ## Networks and deployments
 
 | Network | Chain ID | Coin | Status |
 | --- | --- | --- | --- |
 | MST Testnet | 91562037 | tMSTC | Integrated application payment and P2P flow |
 | MST Mainnet | 4646 | MSTC | Direct transfers prepared; deployed contracts await app activation |
-| Ethereum / Sepolia | 1 / 11155111 | ETH | Direct transfers prepared; contract funding gated |
-| Polygon / Amoy | 137 / 80002 | POL | Direct transfers prepared; contract funding gated |
-| Optimism / OP Sepolia | 10 / 11155420 | ETH | Direct transfers prepared; contract funding gated |
+| Ethereum / Sepolia | 1 / 11155111 | ETH | Direct transfers configured; verified testnet contract setup available |
+| Polygon / Amoy | 137 / 80002 | POL | Direct transfers configured; verified testnet contract setup available |
+| Optimism / OP Sepolia | 10 / 11155420 | ETH | Direct transfers configured; verified testnet contract setup available |
 
-Network configuration and a responding RPC do not constitute a verified contract deployment. The new-network funding gates are deliberate. Existing supported testnet links remain compatible with their proof checks. No bridge, ERC-20 or stablecoin integration is added. See [phase-one rollout and activation checks](docs/PHASE-ONE-MULTICHAIN.md).
+Network configuration and a responding RPC do not constitute a verified contract deployment. The Mainnet funding gates are deliberate. Existing supported testnet links remain compatible with their proof checks. Additional configured ecosystems are Arbitrum, Base, BNB Smart Chain, Avalanche, Celo, Gnosis, Linea and Scroll. Scroll Mainnet is included; its retired Sepolia testnet is excluded. No bridge, ERC-20 or stablecoin integration is added. See [phase-one rollout and activation checks](docs/PHASE-ONE-MULTICHAIN.md).
 
 ### Mainnet addresses
 
@@ -224,7 +230,7 @@ Frontend: http://localhost:5173. API: http://127.0.0.1:3001. `/` is the landing 
 
 The last local source verification passed **94 frontend tests** and **48 server tests**, plus frontend and server production builds. These checks include wallet selection/restoration, wrong-chain/account rejection, deployment gates, identity binding and private-trade permissions. They do not claim an end-to-end signed transfer on every newly configured network.
 
-All eight configured RPCs returned the expected chain IDs during read-only checks. MST Testnet also showed intermittent HTTP/connection failures; RPC availability must be checked again before a demo or rollout.
+Read-only checks returned the expected chain IDs for the expanded active-network registry across runs. MST Testnet also showed intermittent HTTP/connection failures; RPC availability must be checked again before a demo or rollout.
 
 
 Build the frontend using `npm run build -w frontend`; `node scripts/sync-vercel.mjs` prepares Vercel assets. Preserve required operations assets when refreshing that directory. The proxy forwards permitted API routes to the configured EC2 origin.

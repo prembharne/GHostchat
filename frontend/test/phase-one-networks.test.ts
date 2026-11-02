@@ -12,9 +12,11 @@ const bridge = { id: 'bridgekey.io', name: 'BridgeKey', type: 'injected' };
 const meta = { id: 'io.metamask', name: 'MetaMask', type: 'injected' };
 const rabby = { id: 'io.rabby', name: 'Rabby', type: 'injected' };
 
-test('phase one has four chains with separate mainnet and testnet identities', () => {
-  assert.deepEqual(phaseOneNetworks.map(n => n.id), [91562037, 4646, 1, 11155111, 137, 80002, 10, 11155420]);
-  assert.equal(phaseOneNetworks.filter(n => n.testnet).length, 4);
+test('twelve EVM ecosystems have distinct Mainnet and Testnet identities', () => {
+  assert.equal(phaseOneNetworks.length, 23);
+  assert.equal(new Set(phaseOneNetworks.map(n => n.id)).size,23);
+  for(const id of [91562037,4646,1,11155111,137,80002,10,11155420,42161,421614,8453,84532,56,97,43114,43113,42220,11142220,100,10200,59144,59141,534352]) assert.ok(phaseOneNetworks.some(n=>n.id===id));
+  assert.equal(phaseOneNetworks.filter(n => n.testnet).length, 11);
   assert.equal(paymentNetwork(137).symbol, 'POL');
   assert.equal(paymentNetwork(80002).symbol, 'POL');
   for (const id of [1, 10, 11155111, 11155420]) assert.equal(paymentNetwork(id).symbol, 'ETH');
@@ -22,22 +24,24 @@ test('phase one has four chains with separate mainnet and testnet identities', (
   assert.equal(transferNetwork(11155111).testnet, true);
   assert.throws(() => paymentNetwork(31337));
   assert.throws(() => transferNetwork(999999999));
+  assert.throws(() => transferNetwork(534351), /retired/);
 });
 
-test('adding a chain never activates an unverified escrow or P2P backend', () => {
+test('testnet setup is available while Mainnet contracts and other-chain P2P remain gated', () => {
   for (const n of phaseOneNetworks) {
     assert.equal(networkAvailability(n.id, 'direct').enabled, true);
     for (const feature of ['link', 'community', 'p2p'] as const)
-      assert.equal(networkAvailability(n.id, feature).enabled, n.id === 91562037);
+      assert.equal(networkAvailability(n.id, feature).enabled, feature === 'p2p' ? n.id === 91562037 : n.testnet);
   }
   const hash = `0x${'12'.repeat(32)}`;
   for (const chainId of [1, 137, 10, 11155111, 80002, 11155420]) {
     assert.ok(directReference({ version: 3, chainId, hash, from: account, to: account }));
-    if (chainId !== 80002) assert.equal(nativeReference({ version: 2, chainId, contract: account, paymentId: '1' }), undefined);
+    assert.equal(!!nativeReference({ version: 2, chainId, contract: account, paymentId: '1' }), paymentNetwork(chainId).testnet);
   }
 });
 
 test('wallet discovery requires explicit selection when multiple providers are installed', () => {
+  assert.ok(isEvmWallet({id:'app.phantom',name:'Phantom',type:'injected'}));
   assert.ok(isEvmWallet(bridge)); assert.ok(isEvmWallet(meta)); assert.ok(isEvmWallet(rabby));
   assert.equal(isEvmWallet({ id: 'ghostpay-local', name: 'BridgeKey', type: 'injected' }), false);
   assert.equal(isEvmWallet({ id: 'wc', name: 'BridgeKey', type: 'walletConnect' }), false);
@@ -59,11 +63,11 @@ test('reload waits for the selected wallet instead of replacing it with another 
   assert.deepEqual(chosen, [meta.id]);
 });
 
-test('existing BridgeKey sessions can restore without granting a new wallet access', async () => {
+test('a missing previous choice never auto-opens BridgeKey on a fresh visit', async () => {
   let chosen = '';
   await waitForSelectedWallet({ connectors: () => [meta, bridge], previous: () => '',
     connected: () => !!chosen, restore: async w => { chosen = w.id; }, pause: async () => {} });
-  assert.equal(chosen, bridge.id);
+  assert.equal(chosen, '');
 });
 
 test('native transfer preparation checks the selected chain and account without signing', async () => {

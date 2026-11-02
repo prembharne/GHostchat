@@ -11,7 +11,7 @@ import { ghostWallet } from '../src/wallet/connector.ts';
 import { P2P_CHAIN_ID, settlementDomain } from '../../shared/p2p.ts';
 
 const address = '0x1111111111111111111111111111111111111111';
-test('MST is the default testnet and retired Sepolia/mainnet IDs cannot create payment references', () => {
+test('MST is the default testnet and Mainnet IDs cannot create escrow payment references', () => {
   assert.equal(MST_CHAIN_ID, 91562037);
   assert.equal(evmTestnets[0].id, MST_CHAIN_ID);
   assert.equal(mstTestnet.nativeCurrency.symbol, 'tMSTC');
@@ -19,7 +19,7 @@ test('MST is the default testnet and retired Sepolia/mainnet IDs cannot create p
   assert.equal(requireTestnet(MST_CHAIN_ID).rpc, MST_RPC_URL);
   assert.equal(requireTestnet(MST_CHAIN_ID).explorer, MST_EXPLORER);
   assert.ok(evmTestnets.every(network => !/sepolia/i.test(network.name)));
-  for (const chainId of [11155111, 4646, 1]) {
+  for (const chainId of [4646, 1]) {
     assert.throws(() => requireTestnet(chainId));
     assert.equal(nativeReference({ version: 2, chainId, contract: address, paymentId: '1' }), undefined);
     assert.equal(parsePayment({ version: 1, chainId, contract: address, paymentId: '1' }), undefined);

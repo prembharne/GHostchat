@@ -2,6 +2,7 @@ import { defineChain } from 'viem';
 import { networkById } from './evm-networks.js';
 import { phaseOneNetworks } from './phaseOneNetworks.js';
 export function transferNetwork(id: number) {
+  if (id === 534351) throw new Error('Scroll Sepolia has been retired. Choose an active testnet.');
   const network = phaseOneNetworks.find(n => n.id === id) || networkById(id);
   if (!network) throw new Error('Unsupported EVM payment network.');
   return { ...network, testnet: 'testnet' in network ? network.testnet === true : true };
