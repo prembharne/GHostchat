@@ -1,11 +1,28 @@
+<div align="center">
+
+<img src="frontend/public/ghost.svg" width="68" height="68" alt="GhostChat logo" />
+
 # GhostChat
+
+### Your people. Your conversations. Your payments.
+
+[Open the app](https://ghostchat-rho.vercel.app) | [Source code](https://github.com/prembharne/GHostPay) | [Run locally](#local-installation) | [Network status](#networks-and-deployments)
+
+</div>
 
 Encrypted Matrix conversations with EVM wallet identity, native-coin payments, community funding and peer-to-peer UPI trades in one workspace.
 
+**Repository:** [prembharne/GHostPay](https://github.com/prembharne/GHostPay)
 **Web app:** [ghostchat-rho.vercel.app](https://ghostchat-rho.vercel.app)
 **Matrix homeserver:** [ghostchat-matrix-pune.duckdns.org](https://ghostchat-matrix-pune.duckdns.org)
 
 GhostChat helps communities discuss work, pay contributors and share funded allocations without coordinating separate chat identities and manually copied wallet addresses. A registered username resolves to a wallet-linked account. Payment tools open inside the messenger; your selected browser wallet signs transactions.
+
+## The problem
+
+Community organizers and contributors coordinate work in chat, then switch tools to collect wallet addresses, approve payouts and track claims. That separates the payment from its conversation and makes it harder to see who is eligible, which wallet is authorized and whether funds have been claimed.
+
+GhostChat combines encrypted conversations, wallet-linked usernames and explicit smart-contract payment rules in a single messenger. It supports direct payments, sender-authorized links, funded community allocations and an experimental peer-to-peer trade flow.
 
 ## Current implementation
 
@@ -18,7 +35,7 @@ GhostChat helps communities discuss work, pay contributors and share funded allo
 | Payments | Direct native-coin transfers, recipient-authorized payment links and community allocations |
 | P2P | Buyer-posted requests, seller-funded escrow, saved private UPI ID/QR and matching participant confirmations |
 
-The local phase-one implementation prepares **direct native-coin transfers on MST, Ethereum, Polygon and Optimism**, with both Mainnet and Testnet choices. Contract payments and P2P currently use the existing **MST Testnet tMSTC** flow; new-network contract funding remains gated. These source changes have not been deployed to the public website. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
+The phase-one source implementation prepares **direct native-coin transfers on MST, Ethereum, Polygon and Optimism**, with both Mainnet and Testnet choices. Contract payments and P2P currently use the existing **MST Testnet tMSTC** flow; new-network contract funding remains gated. The hosted app and the source release have separate rollout states: the new multichain wallet/transfer implementation has been locally validated but has not been deployed to Vercel in this update. UPI transfers in this P2P flow use **real INR**, directly between participants. Test coins have no redeemable value. GhostChat does not collect INR or verify bank settlement.
 
 ## Account and messaging workflow
 
@@ -63,7 +80,27 @@ Cancellation requires both participants' approvals to return tokens to the selle
 
 Contract bounds: greater than zero and at most **10 native coins**, INR total **₹1–₹100,000**. These bounds do not recommend exchanging real money for test coins.
 
-## Architecture and technical stack
+## Architecture
+
+```mermaid
+flowchart LR
+    U[Community members] --> F[React and TypeScript frontend on Vercel]
+    F --> W[Selected EVM browser wallet]
+    W -->|User-approved transactions| E[Selected EVM chain and payment contracts]
+    F -->|On-chain reads through RPC| E
+    F -->|Encrypted room events| S[Matrix Synapse on EC2]
+    S --> P[(PostgreSQL)]
+    F -->|Signed login and authenticated requests| A[GhostChat API on EC2]
+    A --> D[(SQLite: profiles, offers and private UPI records)]
+    A -->|Short-lived wallet-linked login tickets| S
+    A -->|Trade-bound reference attestations| F
+```
+
+Chat messages are encrypted by Matrix clients before being sent to Synapse. Synapse stores and routes encrypted room events; PostgreSQL persists messaging data. The application API separately manages wallet-bound sessions, profile lookups, private trade details and reference attestations. Browser device keys are needed to decrypt chat history.
+
+The wallet submits blockchain transactions after user approval. The API does not hold users' wallet private keys, sponsor gas or receive their INR. UPI transfers occur outside GhostChat, directly between buyer and seller.
+
+## Technical stack
 
 | Component | Technology and responsibility |
 | --- | --- |
@@ -77,6 +114,17 @@ Contract bounds: greater than zero and at most **10 native coins**, INR total **
 | Hosting | Vercel frontend/API proxy; AWS EC2 Docker Compose with Synapse, PostgreSQL, Caddy HTTPS and GhostChat API |
 
 The API issues login tickets and reference attestations; it is not a gas-sponsoring transaction relayer. Users pay gas for their own transactions. The current native-link, community and mutual-confirmation contracts deduct no platform fee.
+
+## Smart-contract functionality
+
+| Module | Main functions | Fund movement |
+| --- | --- | --- |
+| [`GhostPayNativeEscrow`](contracts/contracts/GhostPayNativeEscrow.sol) | `createNativePayment`, `claimPayment`, `refundPayment`, `getPayment` | Holds a funded link; the approved recipient claims, or the sender refunds after expiry |
+| [`GhostPayCommunity`](contracts/contracts/GhostPayCommunity.sol) | `createCampaign`, `claim`, `refund`, `getCampaign`, `getRecipients` | Holds exact wallet allocations; each eligible wallet claims once; unclaimed remainder can be refunded after expiry |
+| [`GhostChatUTRTrade`](contracts/contracts/GhostChatUTRTrade.sol) | `offer`, `confirmUTR`, `approveCancellation`, `revokeCancellation` | Holds the seller's test tokens; matching attested participant confirmations release them to the fixed buyer |
+| [`GhostChatMainnetTrade`](contracts/contracts/GhostChatMainnetTrade.sol) | Same mutual-confirmation interface | MST Mainnet counterpart; deployment exists, but application trading activation is separate |
+
+Payment-link EIP-712 signatures bind chain, contract, payment, recipient and deadline. P2P attestations bind chain, contract, trade, actor and reference commitment. The contracts enforce their own state and transfer rules; they cannot inspect a bank account or infer that a UPI transfer settled.
 
 ## Networks and deployments
 
@@ -110,7 +158,7 @@ Verified MST Mainnet deployment (chain 4646):
 ### One transaction deployment
 
 ```powershell
-cd D:\hackathon\ghostpay-github
+# From the repository root:
 npm run deploy:mainnet:wallet
 ```
 
@@ -127,7 +175,9 @@ Before Mainnet application activation, configure chain-aware frontend discovery,
 Use Node.js 24, npm, an EIP-6963 EVM browser wallet, a reachable Matrix homeserver and Testnet coins for transaction testing.
 
 ```sh
-npm install
+git clone https://github.com/prembharne/GHostPay.git GhostChat
+cd GhostChat
+npm ci
 npm run compile
 npm run build:services
 ```
@@ -172,6 +222,11 @@ Frontend: http://localhost:5173. API: http://127.0.0.1:3001. `/` is the landing 
 
 ## Operations and validation
 
+The last local source verification passed **94 frontend tests** and **48 server tests**, plus frontend and server production builds. These checks include wallet selection/restoration, wrong-chain/account rejection, deployment gates, identity binding and private-trade permissions. They do not claim an end-to-end signed transfer on every newly configured network.
+
+All eight configured RPCs returned the expected chain IDs during read-only checks. MST Testnet also showed intermittent HTTP/connection failures; RPC availability must be checked again before a demo or rollout.
+
+
 Build the frontend using `npm run build -w frontend`; `node scripts/sync-vercel.mjs` prepares Vercel assets. Preserve required operations assets when refreshing that directory. The proxy forwards permitted API routes to the configured EC2 origin.
 
 The EC2 bundle lives at `/home/ubuntu/ghostchat-matrix`; the app service is `ghostchat-api`. Use explicit Compose paths to avoid inherited relative `COMPOSE_FILE` errors:
@@ -206,9 +261,7 @@ Mainnet suite tests use a local EVM with chain ID 4646 to check atomic deploymen
 
 ## Project documents
 
-- [Current implementation documentation](docs/GhostChat-Current-Implementation.docx)
-- [Current implementation presentation](docs/GhostChat-Current-Implementation.pptx)
 - [Phase-one multichain rollout](docs/PHASE-ONE-MULTICHAIN.md)
 - [Mainnet batch deployment instructions](docs/MAINNET-BATCH-DEPLOYMENT.md)
 
-Maintainer: **Prem Bharne**, Pune, India. Public contact: **prembhrane455@gmail.com**.
+Maintainer: **[Prem Bharne](https://github.com/prembharne)**, Pune, India. Public contact: **prembhrane455@gmail.com**.

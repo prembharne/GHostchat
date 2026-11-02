@@ -1,6 +1,6 @@
 # Phase-one EVM rollout
 
-Status: local implementation prepared on 2 November 2026. This change has not been committed, deployed to Vercel or installed on EC2.
+Status: source implementation prepared on 2 November 2026. Publishing this source to GitHub does not deploy the multichain frontend to Vercel or activate a new-chain API on EC2.
 
 ## What is available
 
@@ -43,7 +43,7 @@ npm run build -w frontend
 - Frontend suite: 94 tests passed, including wallet choice/restoration, chain/account checks and contract activation gates.
 - Server suite: 48 tests passed. Frontend and server production builds passed.
 - All eight RPCs returned the expected chain ID during read-only checks. MST Testnet also returned HTTP 500 and a connection failure on later requests; its endpoint is intermittent and should be monitored before a demo or rollout.
-- No user-signed transfer on the newly configured networks, live deployment, EC2 update or Git commit was performed.
+- No user-signed transfer on the newly configured networks, live deployment or EC2 update was performed during this validation. Source publication and production rollout are separate steps.
 
 ## Before publishing this frontend
 
