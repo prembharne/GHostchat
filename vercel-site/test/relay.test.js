@@ -46,3 +46,17 @@ test('wallet login and Matrix ticket routes are proxied; retired Google and back
   }
   for (const path of ['account/google/challenge', 'account/google/login', 'account/wallet', 'account/wallet/complete']) assert.equal((await relay({ ...base, path }, () => { throw new Error('Retired route must not fetch'); }, 'https://backend.example.com')).status, 404);
 });
+
+test('Google backup routes forward their bearer credential while blocking legacy profile writes', async () => {
+  for (const path of ['google-wallet/config', 'google-wallet/google/challenge', 'google-wallet/google/login', 'google-wallet/me', 'google-wallet/wallet', 'google-wallet/wallet/challenge', 'google-wallet/wallet/complete']) {
+    const response = await relay({ ...base, path, authorization: 'Bearer test-token' }, async (url, options) => {
+      assert.equal(url, `https://backend.example.com/api/${path}`);
+      assert.equal(options.headers.Authorization, 'Bearer test-token');
+      return Response.json({ ok: true });
+    }, 'https://backend.example.com');
+    assert.equal(response.status, 200);
+  }
+  for (const path of ['google-wallet/challenge', 'google-wallet/complete', 'google-wallet/matrix-ticket']) {
+    assert.equal((await relay({ ...base, path }, () => { throw new Error('Unexpected upstream request'); }, 'https://backend.example.com')).status, 404);
+  }
+});

@@ -1,0 +1,10 @@
+{
+  "name": "evm-action-attestations",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "scripts": { "test": "node --import tsx --test test/*.test.mjs" },
+  "dependencies": { "@noble/post-quantum": "0.7.1", "viem": "2.57.16" }
+}

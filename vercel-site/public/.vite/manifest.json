@@ -3,8 +3,14 @@
     "file": "assets/matrix_sdk_crypto_wasm_bg-DQQaknxI.wasm",
     "src": "../node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm"
   },
+  "../node_modules/ethers/lib.esm/index.js": {
+    "file": "assets/index-DZutbyQ7.js",
+    "name": "index",
+    "src": "../node_modules/ethers/lib.esm/index.js",
+    "isDynamicEntry": true
+  },
   "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js": {
-    "file": "assets/index-CsiAT9hp.js",
+    "file": "assets/index-Hs_7UCIo.js",
     "name": "index",
     "src": "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js",
     "isDynamicEntry": true,
@@ -16,83 +22,91 @@
     ]
   },
   "../node_modules/viem/_esm/utils/ccip.js": {
-    "file": "assets/ccip-8D1Ov1GF.js",
+    "file": "assets/ccip-Cpp3TYvK.js",
     "name": "ccip",
     "src": "../node_modules/viem/_esm/utils/ccip.js",
-    "isDynamicEntry": true,
-    "imports": [
-      "index.html",
-      "_WalletDialog-C0EPoeRE.js"
-    ]
-  },
-  "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js": {
-    "file": "assets/secp256k1-IZ7vEGEX.js",
-    "name": "secp256k1",
-    "src": "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js",
     "isDynamicEntry": true,
     "imports": [
       "index.html"
     ]
   },
-  "_Messenger-5WMZBLct.css": {
-    "file": "assets/Messenger-5WMZBLct.css",
-    "src": "_Messenger-5WMZBLct.css"
-  },
-  "_Messenger-7gKY5z3L.js": {
-    "file": "assets/Messenger-7gKY5z3L.js",
-    "name": "Messenger",
+  "../packages/evm-action-attestations/node_modules/@noble/curves/esm/secp256k1.js": {
+    "file": "assets/secp256k1-CILOX2Ug.js",
+    "name": "secp256k1",
+    "src": "../packages/evm-action-attestations/node_modules/@noble/curves/esm/secp256k1.js",
     "isDynamicEntry": true,
     "imports": [
+      "_WalletLab-Cn9y2EcS.js",
+      "index.html"
+    ]
+  },
+  "_UI-CPCPp92l.js": {
+    "file": "assets/UI-CPCPp92l.js",
+    "name": "UI",
+    "imports": [
       "index.html",
-      "_WalletDialog-C0EPoeRE.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
+      "_WalletDialog-CWEsHQjY.js"
+    ]
+  },
+  "_WalletDialog-5WMZBLct.css": {
+    "file": "assets/WalletDialog-5WMZBLct.css",
+    "src": "_WalletDialog-5WMZBLct.css"
+  },
+  "_WalletDialog-CWEsHQjY.js": {
+    "file": "assets/WalletDialog-CWEsHQjY.js",
+    "name": "WalletDialog",
+    "isDynamicEntry": true,
+    "imports": [
+      "index.html"
     ],
     "dynamicImports": [
-      "_WalletDialog-C0EPoeRE.js",
       "src/p2p/TradePage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/Setup.tsx",
       "src/pages/PaymentPage.tsx"
     ],
     "css": [
-      "assets/Messenger-5WMZBLct.css"
+      "assets/WalletDialog-5WMZBLct.css"
     ]
   },
-  "_UI-dBi5fHFI.js": {
-    "file": "assets/UI-dBi5fHFI.js",
-    "name": "UI",
-    "imports": [
-      "index.html",
-      "_Messenger-7gKY5z3L.js"
-    ]
-  },
-  "_WalletDialog-C0EPoeRE.js": {
-    "file": "assets/WalletDialog-C0EPoeRE.js",
-    "name": "WalletDialog",
+  "_WalletLab-Cn9y2EcS.js": {
+    "file": "assets/WalletLab-Cn9y2EcS.js",
+    "name": "WalletLab",
     "isDynamicEntry": true,
     "imports": [
       "index.html"
+    ],
+    "dynamicImports": [
+      "../packages/evm-action-attestations/node_modules/@noble/curves/esm/secp256k1.js"
+    ],
+    "css": [
+      "assets/WalletLab-Rhwsfdi9.css"
     ]
   },
+  "_WalletLab-Rhwsfdi9.css": {
+    "file": "assets/WalletLab-Rhwsfdi9.css",
+    "src": "_WalletLab-Rhwsfdi9.css"
+  },
   "index.html": {
-    "file": "assets/index-u3E-X_7w.js",
+    "file": "assets/index-bCIPAUVA.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "dynamicImports": [
       "../node_modules/viem/_esm/utils/ccip.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js",
+      "../node_modules/ethers/lib.esm/index.js",
       "../node_modules/matrix-js-sdk/lib/rust-crypto/index.js",
       "src/company/PublicPages.tsx",
-      "_Messenger-7gKY5z3L.js",
+      "_WalletDialog-CWEsHQjY.js",
+      "_WalletLab-Cn9y2EcS.js",
       "src/pages/Landing.tsx"
     ],
     "css": [
-      "assets/index-CVzUanO9.css"
+      "assets/index-nXJm-7QR.css"
     ]
   },
   "src/company/PublicPages.tsx": {
-    "file": "assets/PublicPages-Bo7SiibS.js",
+    "file": "assets/PublicPages-DqQj1-Kr.js",
     "name": "PublicPages",
     "src": "src/company/PublicPages.tsx",
     "isDynamicEntry": true,
@@ -104,35 +118,31 @@
     ]
   },
   "src/p2p/TradePage.tsx": {
-    "file": "assets/TradePage-B3Wq3OSo.js",
+    "file": "assets/TradePage-hhJXlBDP.js",
     "name": "TradePage",
     "src": "src/p2p/TradePage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-7gKY5z3L.js",
-      "_WalletDialog-C0EPoeRE.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
+      "_WalletDialog-CWEsHQjY.js"
     ],
     "css": [
       "assets/TradePage-Cl9XfiEK.css"
     ]
   },
   "src/pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-T4rTs8KZ.js",
+    "file": "assets/Dashboard-lbklxBIP.js",
     "name": "Dashboard",
     "src": "src/pages/Dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-7gKY5z3L.js",
-      "_UI-dBi5fHFI.js",
-      "_WalletDialog-C0EPoeRE.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
+      "_WalletDialog-CWEsHQjY.js",
+      "_UI-CPCPp92l.js"
     ]
   },
   "src/pages/Landing.tsx": {
-    "file": "assets/Landing-VwkSdQMp.js",
+    "file": "assets/Landing-BROhejD9.js",
     "name": "Landing",
     "src": "src/pages/Landing.tsx",
     "isDynamicEntry": true,
@@ -144,28 +154,24 @@
     ]
   },
   "src/pages/PaymentPage.tsx": {
-    "file": "assets/PaymentPage-DFWOCYV_.js",
+    "file": "assets/PaymentPage-B6DO_g4s.js",
     "name": "PaymentPage",
     "src": "src/pages/PaymentPage.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-7gKY5z3L.js",
-      "_UI-dBi5fHFI.js",
-      "_WalletDialog-C0EPoeRE.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
+      "_WalletDialog-CWEsHQjY.js",
+      "_UI-CPCPp92l.js"
     ]
   },
   "src/pages/Setup.tsx": {
-    "file": "assets/Setup-Cob5wrhF.js",
+    "file": "assets/Setup-BW1fZ0pi.js",
     "name": "Setup",
     "src": "src/pages/Setup.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_Messenger-7gKY5z3L.js",
-      "_WalletDialog-C0EPoeRE.js",
-      "../node_modules/viem/node_modules/@noble/curves/esm/secp256k1.js"
+      "_WalletDialog-CWEsHQjY.js"
     ]
   }
 }

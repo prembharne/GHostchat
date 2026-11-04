@@ -3,6 +3,9 @@ export interface BrowserWallet { id: string; name: string; type?: string }
 export function isEvmWallet(wallet: BrowserWallet) {
   return wallet.type === 'injected' && !['ghostpay-local', 'ghostchat-saral', 'ghostchat-embedded'].includes(wallet.id);
 }
+export function isSupportedWallet(wallet: BrowserWallet) {
+  return isEvmWallet(wallet) || (wallet.id === 'ghostchat-google' && wallet.type === 'embedded');
+}
 const key = 'ghostchat.selected-wallet.v1';
 export function savedWalletId(): string { try { return localStorage.getItem(key) || ''; } catch { return ''; } }
 export function rememberWallet(id: string) { try { localStorage.setItem(key, id); } catch { /* Session can remain in memory. */ } }

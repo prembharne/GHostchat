@@ -176,6 +176,14 @@ After two confirmations, the tool verifies exact creation input and all runtime 
 
 Before Mainnet application activation, configure chain-aware frontend discovery, backend contract validation, deployment records, signature domains, private-trade storage namespaces and payment services for chain 4646. Validate the complete workflow with controlled amounts. Pasting Mainnet addresses into the Testnet service is insufficient. The contracts are experimental and unaudited.
 
+## Post-quantum action SDK
+
+GhostChat is an encrypted Matrix messenger with wallet-linked profiles and EVM payments. Its [Post-quantum Wallet Lab](https://ghostchat-rho.vercel.app/pq-lab) uses the [EVM Action Attestations workspace package](packages/evm-action-attestations/src/index.ts). The SDK requires both EIP-712 and ML-DSA-65 signatures over one action, including its source transaction, destination chain, recipient, audience, nonce, and expiry. The lab demonstrates valid approval, tamper rejection, replay rejection, and signer rotation against an in-memory ledger. It labels demo actions Sepolia → MST Testnet and never sends a transaction.
+
+Today, direct ETH transfers settle on Ethereum when Ethereum Mainnet is selected. MST features execute on their own network. An Ethereum payment does not currently trigger an MST transaction, and P2P settlement remains on MST Testnet. See the [cross-network design and trust boundaries](docs/POST-QUANTUM-INTEROPERABILITY.md).
+
+Run the SDK tests with `npm test -w evm-action-attestations` and the app integration tests with `npm run test:messenger`.
+
 ## Local installation
 
 Use Node.js 24, npm, an EIP-6963 EVM browser wallet, a reachable Matrix homeserver and Testnet coins for transaction testing.

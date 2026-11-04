@@ -1,7 +1,7 @@
 import { getAddress, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { walletBackupInput, type EncryptedWalletBackup } from '../../../shared/walletBackup';
-import { accountApi } from './accountApi';
+import { googleWalletApi } from './googleSession';
 import { googleSession, setGoogleSession, subscribeGoogleSession } from './googleSession';
 import { createEmbeddedProvider, type SigningReview } from './embeddedProvider';
 
@@ -27,7 +27,7 @@ export async function unlockEmbeddedWallet(password: string) {
   const operationEpoch = epoch; const ensure = () => { if (epoch !== operationEpoch || googleSession()?.subject !== session.subject) throw new Error('The account changed. Start wallet setup again.'); };
   emit({ busy: true, progress: 0 });
   try {
-    const backup = await accountApi<EncryptedWalletBackup | null>('/wallet'); ensure();
+    const backup = await googleWalletApi<EncryptedWalletBackup | null>('/wallet'); ensure();
     const { Wallet, encryptKeystoreJson, decryptKeystoreJson } = await import('ethers');
     const progress = (value: number) => emit({ progress: value });
     let privateKey: Hex; let walletAddress: string;
@@ -37,13 +37,13 @@ export async function unlockEmbeddedWallet(password: string) {
       ensure(); privateKey = decrypted.privateKey as Hex; walletAddress = decrypted.address;
       if (getAddress(walletAddress) !== getAddress(backup.wallet)) throw new Error('The backup address does not match its signing key.');
     } else {
-      const profile = await accountApi<{ wallet: string } | null>('/me'); ensure();
+      const profile = await googleWalletApi<{ wallet: string } | null>('/me'); ensure();
       if (profile) throw new Error('This account already has a wallet identity without an encrypted backup. Restore its original wallet before continuing.');
       const generated = Wallet.createRandom(); privateKey = generated.privateKey as Hex; walletAddress = generated.address;
       const keystore = await encryptKeystoreJson({ address: walletAddress, privateKey }, password, { progressCallback: progress }); ensure();
-      const challenge = await accountApi<{ nonce: string; message: string }>('/wallet/challenge', { wallet: walletAddress, keystore }); ensure();
+      const challenge = await googleWalletApi<{ nonce: string; message: string }>('/wallet/challenge', { wallet: walletAddress, keystore }); ensure();
       const signature = await generated.signMessage(challenge.message); ensure();
-      await accountApi('/wallet/complete', { nonce: challenge.nonce, signature }); ensure();
+      await googleWalletApi('/wallet/complete', { nonce: challenge.nonce, signature }); ensure();
     }
     const signer = privateKeyToAccount(privateKey); ensure();
     const instance = createEmbeddedProvider(signer, async review => {
@@ -55,6 +55,6 @@ export async function unlockEmbeddedWallet(password: string) {
   } finally { emit({ busy: false, progress: 0 }); }
 }
 export async function exportEmbeddedBackup() {
-  const backup = await accountApi<EncryptedWalletBackup | null>('/wallet'); if (!backup) throw new Error('No encrypted backup is available.');
+  const backup = await googleWalletApi<EncryptedWalletBackup | null>('/wallet'); if (!backup) throw new Error('No encrypted backup is available.');
   walletBackupInput(backup); return backup;
 }

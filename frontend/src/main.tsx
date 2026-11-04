@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { EmbeddedApproval } from './wallet/EmbeddedApproval';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
@@ -13,7 +14,7 @@ import './workspace.css';
 import './messenger/mobile-polish.css';
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: true } } });
 const root = ReactDOM.createRoot(document.getElementById('root')!);
-const render = () => root.render(<React.StrictMode><WagmiProvider config={config} reconnectOnMount={false}><QueryClientProvider client={queryClient}><BrowserRouter><PwaProvider><AppErrorBoundary><App/></AppErrorBoundary></PwaProvider></BrowserRouter></QueryClientProvider></WagmiProvider></React.StrictMode>);
+const render = () => root.render(<React.StrictMode><WagmiProvider config={config} reconnectOnMount={false}><QueryClientProvider client={queryClient}><BrowserRouter><PwaProvider><AppErrorBoundary><App/><EmbeddedApproval/></AppErrorBoundary></PwaProvider></BrowserRouter></QueryClientProvider></WagmiProvider></React.StrictMode>);
 async function bootstrap() {
   void restoreWalletConnection();
   // Start the UI immediately; protected routes wait for the one-time wallet restoration.

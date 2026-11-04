@@ -1,16 +1,21 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 import { createWalletClient, custom, getAddress, type EIP1193Provider } from 'viem';
+import { Modal } from '../messenger/Modal';
+import { GoogleWalletSetup } from './GoogleWalletSetup';
 import { BridgeKeyConnect } from './BridgeKeyConnect';
-import { isEvmWallet } from './evmWallet';
+import { isSupportedWallet } from './evmWallet';
 import { publicWalletApi, setWalletSession } from './walletSession';
 
 export function BridgeKeyLogin({ onBusyChange }: { onBusyChange?(busy: boolean): void }) {
   const account = useAccount(); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const [googleOpen, setGoogleOpen] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   async function login() {
     setBusy(true); onBusyChange?.(true); setError('');
     try {
-      if (!account.address || !account.connector || !isEvmWallet(account.connector)) throw new Error('Connect your EVM browser wallet.');
+      if (!account.address || !account.connector || !isSupportedWallet(account.connector)) throw new Error('Connect or unlock your wallet.');
       const provider = await account.connector.getProvider() as EIP1193Provider;
       const challenge = await publicWalletApi('/wallet-auth/challenge', { wallet: account.address });
       const signer = createWalletClient({ account: account.address, transport: custom(provider) });
@@ -23,5 +28,25 @@ export function BridgeKeyLogin({ onBusyChange }: { onBusyChange?(busy: boolean):
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); onBusyChange?.(false); }
   }
-  return <>{!account.connector || !isEvmWallet(account.connector) ? <BridgeKeyConnect disabled={busy}/> : <><p className="ms-fine">Wallet connected. Sign a login message to verify wallet ownership. This does not spend tokens.</p><button className="ms-button ms-primary ms-full" disabled={busy} onClick={() => { void login(); }}>{busy ? 'Waiting for wallet…' : 'Sign in with wallet'}</button><BridgeKeyConnect compact disabled={busy}/></>}{error && <p className="ms-alert" role="alert">{error}</p>}</>;
+  const connected = !!account.connector && isSupportedWallet(account.connector);
+  return <>
+    <div className="gc-signin-options">
+      {connected && <>
+        <p className="ms-fine">Sign a login message to verify wallet ownership. This does not spend tokens.</p>
+        <button type="button" className="ms-button ms-primary ms-full" disabled={busy} onClick={() => { void login(); }}>
+          {busy ? 'Waiting for wallet…' : 'Sign in with wallet'}
+        </button>
+      </>}
+      <BridgeKeyConnect compact={connected} disabled={busy}/>
+      {account.connector?.id !== 'ghostchat-google' &&
+        <button type="button" className="ms-button ms-secondary ms-full" disabled={busy} onClick={() => setGoogleOpen(true)}>
+          Create or restore with Google
+        </button>}
+    </div>
+    <Link className="ms-text" to="/pq-lab">Try the post-quantum wallet lab</Link>
+    {googleOpen && <Modal title="Your Google wallet" className="gc-wallet-choice" onClose={() => { if (!googleBusy) setGoogleOpen(false); }}>
+      <GoogleWalletSetup onBusyChange={setGoogleBusy} onConnected={() => setGoogleOpen(false)}/>
+    </Modal>}
+    {error && <p className="ms-alert" role="alert">{error}</p>}
+  </>;
 }

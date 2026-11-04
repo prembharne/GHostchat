@@ -6,7 +6,7 @@ const previous = 'GOOGLE_CLIENT_ID=old-public-id\nFRONTEND_ORIGIN=https://app.ex
 test('wallet migration preserves existing secrets and is idempotent', () => {
   const a = walletConfiguration(original, previous, 'https://app.example.com', 'matrix.example.com');
   assert.match(a.config, /macaroon_secret_key: "unchanged-secret"/); assert.match(a.config, /issuer: ghostchat-wallet/); assert.match(a.config, /audiences: \[ghostchat-matrix\]/);
-  assert.match(a.env, /PROFILE_ENCRYPTION_KEY=existing-profile-key/); assert.match(a.env, /TEST_PAYMENT_ATTESTOR_KEY=existing-attestor/); assert.doesNotMatch(a.env, /GOOGLE/);
+  assert.match(a.env, /PROFILE_ENCRYPTION_KEY=existing-profile-key/); assert.match(a.env, /TEST_PAYMENT_ATTESTOR_KEY=existing-attestor/); assert.match(a.env, /GOOGLE_CLIENT_ID=old-public-id/); assert.doesNotMatch(a.env, /GOOGLE_CLIENT_SECRET/);
   assert.deepEqual(walletConfiguration(a.config, a.env, 'https://app.example.com', 'matrix.example.com'), a);
   assert.throws(() => walletConfiguration(a.config, previous, 'https://app.example.com', 'matrix.example.com'), /secret differs/);
 });

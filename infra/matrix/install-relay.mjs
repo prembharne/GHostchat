@@ -7,7 +7,7 @@ const get = flag => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] 
 const bundle = resolve(get('--bundle') || '');
 const app = new URL(get('--app') || '');
 if (process.platform === 'win32' || process.getuid?.() !== 0) throw new Error('Run this installer with sudo on the EC2 Linux host.');
-if (!get('--bundle') || app.protocol !== 'https:' || app.pathname !== '/' || app.username || app.password || app.search || app.hash) throw new Error('Provide --bundle and an HTTPS --app origin. Google credentials are not used.');
+if (!get('--bundle') || app.protocol !== 'https:' || app.pathname !== '/' || app.username || app.password || app.search || app.hash) throw new Error('Provide --bundle and an HTTPS --app origin. Google wallet login uses the public GOOGLE_CLIENT_ID in relay.env.');
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 if (repo.includes('\n') || repo.includes('\r')) throw new Error('Invalid repository path.');
 await access(resolve(repo, 'server/runtime/relay.mjs'));

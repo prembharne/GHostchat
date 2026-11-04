@@ -6,7 +6,8 @@
   "workspaces": [
     "contracts",
     "frontend",
-    "server"
+    "server",
+    "packages/evm-action-attestations"
   ],
   "scripts": {
     "compile": "npm run compile -w contracts",

@@ -15,7 +15,7 @@ export function walletConfiguration(config, previous, app, server) {
   }
   const entries = Object.fromEntries(previous.split(/\r?\n/).filter(line => line && !line.startsWith('#')).map(line => { const i = line.indexOf('='); if (i < 1) throw new Error('Malformed relay.env.'); return [line.slice(0, i), line.slice(i + 1)]; }));
   if (entries.FRONTEND_ORIGIN && entries.FRONTEND_ORIGIN !== app) throw new Error('Existing frontend origin differs. Review it before migrating.');
-  for (const key of ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET']) delete entries[key];
+  delete entries.GOOGLE_CLIENT_SECRET;
   entries.FRONTEND_ORIGIN = app;
   entries.PROFILE_ENCRYPTION_KEY ||= randomBytes(32).toString('hex');
   entries.TEST_PAYMENT_ATTESTOR_KEY ||= `0x${randomBytes(32).toString('hex')}`;

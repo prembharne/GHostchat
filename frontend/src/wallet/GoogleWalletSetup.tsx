@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useConnect } from 'wagmi';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { acceptGoogleCredential, googleSession, publicAccountApi, subscribeGoogleSession } from './googleSession';
-import { accountApi } from './accountApi';
+import { googleWalletApi } from './googleSession';
 import { embeddedWalletSnapshot, signOutEmbeddedWallet, subscribeEmbeddedWallet, unlockEmbeddedWallet } from './embeddedWallet';
 import type { EncryptedWalletBackup } from '../../../shared/walletBackup';
 interface GoogleIdentityApi {
@@ -22,11 +22,11 @@ function loadGoogle() {
     document.head.appendChild(script);
   }).catch(error => { googleLibrary = undefined; throw error; });
 }
-export function GoogleWalletSetup({ onBusyChange }: { onBusyChange?(busy: boolean): void }) {
+export function GoogleWalletSetup({ onBusyChange, onConnected }: { onBusyChange?(busy: boolean): void; onConnected?(): void }) {
   const session = useSyncExternalStore(subscribeGoogleSession, googleSession);
   const walletState = useSyncExternalStore(subscribeEmbeddedWallet, embeddedWalletSnapshot);
   const config = useQuery({ queryKey: ['google-login-config'], queryFn: () => publicAccountApi<{ googleClientId: string; profileConfigured: boolean }>('/config'), retry: false });
-  const backup = useQuery({ queryKey: ['encrypted-wallet', session?.subject], queryFn: () => accountApi<EncryptedWalletBackup | null>('/wallet'), enabled: !!session, retry: false });
+  const backup = useQuery({ queryKey: ['encrypted-wallet', session?.subject], queryFn: () => googleWalletApi<EncryptedWalletBackup | null>('/wallet'), enabled: !!session, retry: false });
   const { connectors, connectAsync } = useConnect(); const cache = useQueryClient();
   const target = useRef<HTMLDivElement>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [attempt, setAttempt] = useState(0); const [loaded, setLoaded] = useState(false);
   const [password, setPassword] = useState(''); const [confirmation, setConfirmation] = useState(''); const [accepted, setAccepted] = useState(false);
@@ -56,6 +56,7 @@ export function GoogleWalletSetup({ onBusyChange }: { onBusyChange?(busy: boolea
       if (!connector) throw new Error('GhostChat wallet connection is unavailable.');
       await connectAsync({ connector }); setPassword(''); setConfirmation('');
       await cache.invalidateQueries({ queryKey: ['private-profile'] });
+      onConnected?.();
     } catch (cause) { setError((cause as Error).message); }
     finally { setBusy(false); }
   }
@@ -65,7 +66,7 @@ export function GoogleWalletSetup({ onBusyChange }: { onBusyChange?(busy: boolea
       <label htmlFor="embedded-password">{backup.data ? 'Unlock your wallet' : 'Create a wallet password'}</label><input id="embedded-password" type="password" autoComplete={backup.data ? 'current-password' : 'new-password'} value={password} onChange={event => setPassword(event.target.value)} minLength={12} disabled={busy} required/>
       {!backup.data && <><label htmlFor="embedded-confirm">Confirm wallet password</label><input id="embedded-confirm" type="password" autoComplete="new-password" value={confirmation} onChange={event => setConfirmation(event.target.value)} minLength={12} disabled={busy} required/><label className="ms-fine"><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} required/> I understand I need this password to recover my wallet. Google cannot reset it.</label></>}
       <p className="ms-fine">Your key is encrypted in this browser. GhostChat stores an encrypted backup. Your password and unlocked key stay on this device.</p>
-      <button className="ms-button ms-primary ms-full" disabled={busy || walletState.busy}>{busy ? `Securing wallet… ${Math.round(walletState.progress * 100)}%` : backup.data ? 'Unlock wallet & continue' : 'Create my MST wallet'}</button>
+      <button className="ms-button ms-primary ms-full" disabled={busy || walletState.busy}>{busy ? `Securing wallet… ${Math.round(walletState.progress * 100)}%` : backup.data ? 'Unlock wallet & continue' : 'Create my wallet'}</button>
     </form>}
     {error && <p className="ms-alert" role="alert">{error}</p>}
     <button className="ms-text" disabled={busy || walletState.busy} onClick={() => { signOutEmbeddedWallet(); window.google?.accounts.id.disableAutoSelect(); cache.removeQueries({ queryKey: ['private-profile'] }); }}>Use another Google account</button>
@@ -75,7 +76,7 @@ export function GoogleWalletSetup({ onBusyChange }: { onBusyChange?(busy: boolea
     {config.isPending && <p className="ms-fine" role="status">Loading Google sign-in…</p>}
     {config.data && !config.data.googleClientId && <p className="ms-alert" role="status">Google sign-in needs your OAuth Web Client ID. Add GOOGLE_CLIENT_ID to the project’s server configuration and restart.</p>}
     {config.data && !config.data.profileConfigured && <p className="ms-alert">Private profile storage needs its encryption key before account setup can start.</p>}
-    {loaded && <p className="ms-fine">Continue with your own Google account. No browser wallet extension is required.</p>}
+    {loaded && <p className="ms-fine">Create or unlock a wallet for MST with your Google account and wallet password.</p>}
     {(error || config.error) && <p className="ms-alert" role="alert">{error || config.error?.message}</p>}
     <button className="ms-text" disabled={busy || config.isPending} onClick={() => { setAttempt(value => value + 1); void config.refetch(); }}>{loaded ? 'Refresh sign-in' : 'Retry Google sign-in'}</button>
   </div>;

@@ -13,7 +13,7 @@ import { accountInput } from '../../../shared/account';
 import { accountApi, type PrivateProfile } from './accountApi';
 import { walletSession, subscribeWalletSession, setWalletSession } from './walletSession';
 import { BridgeKeyLogin } from './BridgeKeyLogin';
-import { isEvmWallet } from './evmWallet';
+import { isSupportedWallet } from './evmWallet';
 import { ensureWalletMatrix, matrix } from '../messenger/matrix';
 import type { EIP1193Provider } from 'viem';
 import { useAction } from '../hooks/useAction';
@@ -31,7 +31,7 @@ export function AccountPanel({ onboarding = false, onReady, onBusyChange }: { on
   const chain = walletChain(walletChains.some(item => item.id === account.chainId) ? account.chainId! : MST_CHAIN_ID);
   const balance = useBalance({ address: account.address, chainId: chain.id, query: { enabled: !!account.address, refetchInterval: 15000 } });
   const session = useSyncExternalStore(subscribeWalletSession, walletSession);
-  const authenticated = !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isEvmWallet(account.connector);
+  const authenticated = !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isSupportedWallet(account.connector);
   const profile = useQuery({ queryKey: ['private-profile', account.address], queryFn: () => accountApi<PrivateProfile | null>('/me'), enabled: authenticated, retry: false });
   useEffect(() => { onBusyChange?.(action.busy); }, [action.busy, onBusyChange]);
   useEffect(() => () => onBusyChange?.(false), [onBusyChange]);
@@ -55,7 +55,7 @@ export function AccountPanel({ onboarding = false, onReady, onBusyChange }: { on
   const mismatch = profile.data && profile.data.wallet.toLowerCase() !== account.address?.toLowerCase();
   return <div className="gc-account-surface" aria-busy={action.busy}>
     {(!authenticated || onboarding) && <><div className="gp-profile-orb">{authenticated ? <ShieldCheck size={29}/> : <Wallet size={29}/>}<span/></div>
-    <p className="ms-modal-copy">{onboarding ? authenticated ? 'Your wallet is connected. Choose your identity, then make yourself at home.' : 'Connect your EVM wallet. Your conversations and payments come together from here.' : 'Your account and EVM wallet.'}</p></>}
+    <p className="ms-modal-copy">{onboarding ? authenticated ? 'Your wallet is connected. Choose your identity, then make yourself at home.' : 'Connect an existing wallet or create one with Google to get started.' : 'Your account and EVM wallet.'}</p></>}
     {authenticated && !onboarding && <ProfilePhotoEditor/>}
     {!authenticated ? onboarding ? <BridgeKeyLogin onBusyChange={onBusyChange}/> : <Link className="ms-button ms-primary ms-full" to="/start">Continue to sign in</Link> : <>
       {!onboarding && <><label className="ms-fine" htmlFor="wallet-network">Wallet network</label><select id="wallet-network" className="ms-input" value={chain.id} disabled={action.busy} onChange={event => { const chainId = Number(event.target.value); void action.run(async () => { await switchChainAsync({ chainId }); }); }}>{walletChains.map(item => <option value={item.id} key={item.id}>{item.name} · {item.nativeCurrency.symbol}</option>)}</select>

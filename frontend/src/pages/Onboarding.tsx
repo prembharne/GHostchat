@@ -6,7 +6,7 @@ import { AccountShell } from '../wallet/AccountScreen';
 import { AccountPanel } from '../wallet/ProfileWallet';
 import { accountApi, type PrivateProfile } from '../wallet/accountApi';
 import { walletSession, subscribeWalletSession } from '../wallet/walletSession';
-import { isEvmWallet } from '../wallet/evmWallet';
+import { isSupportedWallet } from '../wallet/evmWallet';
 import { rememberedSession } from '../messenger/matrix';
 import { onboardingDestination, profileMatchesWallet } from '../wallet/onboarding';
 import { AppLoading } from '../components/AppLoading';
@@ -17,7 +17,7 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
   const account = useAccount(); const location = useLocation();
   const restoring = useSyncExternalStore(subscribeWalletRestoration, walletRestoring);
   const session = useSyncExternalStore(subscribeWalletSession, walletSession);
-  const authenticated = !restoring && account.isConnected && !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isEvmWallet(account.connector);
+  const authenticated = !restoring && account.isConnected && !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isSupportedWallet(account.connector);
   const profile = useQuery({ queryKey: ['private-profile', account.address], queryFn: () => accountApi<PrivateProfile | null>('/me'), enabled: authenticated, retry: false });
   if (restoring || account.status === 'reconnecting' || account.status === 'connecting') return <AppLoading label="Reconnecting your wallet"/>;
   if (authenticated && profile.isPending) return <AppLoading label="Checking your account"/>;
@@ -39,7 +39,7 @@ export function Onboarding() {
   }, [busy]);
   const account = useAccount();
   const session = useSyncExternalStore(subscribeWalletSession, walletSession);
-  const authenticated = !restoring && account.isConnected && !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isEvmWallet(account.connector);
+  const authenticated = !restoring && account.isConnected && !!account.address && session?.wallet.toLowerCase() === account.address.toLowerCase() && !!account.connector && isSupportedWallet(account.connector);
   const profile = useQuery({ queryKey: ['private-profile', account.address], queryFn: () => accountApi<PrivateProfile | null>('/me'), enabled: authenticated, retry: false });
   const stage = authenticated ? profileMatchesWallet(profile.data, account.address) ? 3 : 2 : 1;
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { AccountDirectory, profileRouter } from './accounts.js';
+import { AccountDirectory, accountRouter, profileRouter } from './accounts.js';
 import { WalletAccounts, walletAccountRouter } from './walletAccounts.js';
 import { privateTradeRouter, type PrivateTradeDetails } from './privateTradeDetails.js';
 import { ServiceUnavailable } from './serviceErrors.js';
@@ -28,6 +28,11 @@ export function createApp(client: PublicClient, deployment: { address: Address; 
   const sigValid = (s: unknown): s is Hex => typeof s === 'string' && /^0x[\da-fA-F]+$/.test(s) && s.length % 2 === 0;
   async function payment(id: string) { return client.readContract({ address: deployment.address, abi: escrowAbi, functionName: 'getPayment', args: [BigInt(id)] }); }
   const fail = (message: string, status = 400): never => { throw Object.assign(new Error(message), { status }); };
+  app.use('/api/google-wallet', (req, res, next) => {
+    if (req.path !== '/config' && !process.env.GOOGLE_CLIENT_ID) return res.status(503).json({ error: 'Google wallet sign-in is not configured.' });
+    if (!/^\/(?:config|google\/(?:challenge|login)|me|wallet(?:\/(?:challenge|complete))?)$/.test(req.path)) return res.sendStatus(404);
+    next();
+  }, accountRouter(directory, origin.split(',')));
   app.use('/api/account', walletAccountRouter(directory, origin.split(','), walletAuth));
   app.use('/api/profiles', profileRouter(directory));
   app.get('/api/p2p/quote', async (_req, res) => { res.setHeader('Cache-Control', 'no-store'); try { const quote = await chainlinkQuote(process.env); res.status(quote.configured ? 200 : 503).json(quote); } catch { res.status(503).json({ configured: false, reason: 'Oracle verification failed. Live quotes are unavailable.' }); } });
